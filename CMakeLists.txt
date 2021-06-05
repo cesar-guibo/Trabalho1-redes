@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(
     tictactoe
     src/tictactoe/game_server.cpp
+	src/tictactoe/game_server.hpp
 )
 
 # target_include_directories(
