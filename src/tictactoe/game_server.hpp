@@ -7,6 +7,7 @@
 #include <thread>
 #include <map>
 #include <unordered_map>
+#include <string>
 
 #include <sys/socket.h>
 #include <stdio.h>
