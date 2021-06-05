@@ -6,7 +6,8 @@
 #include <netdb.h>
 #include <errno.h>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) 
+{
     int client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (client_socket < 0) {
         perror("Failed to create socket\n");
@@ -21,5 +22,6 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     printf("Connection was established successfully\n.");
-    return 0;
+
+	return 0;
 }

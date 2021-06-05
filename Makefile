@@ -9,11 +9,11 @@ all: ./bin
 	mkdir ./bin 
 
 test_client:
-	netcat -l -p 8080&
+	nc -l -p 8080&
 	./bin/client 127.0.0.1 8080
 
 run:
-	./client
+	./bin/client
 
 clean:
 	rm -rf programa bin *.bin
