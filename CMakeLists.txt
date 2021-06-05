@@ -25,13 +25,13 @@ target_link_libraries(
     tictactoe
 )
 
-# add_executable(
-#     client
-#     src/client.cpp
-# )
+add_executable(
+    client
+    src/client.cpp
+)
 
-# target_link_libraries(
-#     client
-#     PRIVATE
-#     tictactoe
-# )
+target_link_libraries(
+    client
+    PRIVATE
+    tictactoe
+)
