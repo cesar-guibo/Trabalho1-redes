@@ -17,11 +17,13 @@
 // Comunication
 ServerConnector::ServerConnector(int socket):
 	socket(socket), connected(true)
-{}
+{
+	update_thread = std::thread(&ServerConnector::update, this);
+}
 		
 ServerConnector::~ServerConnector()
 {
-	//update_thread.join();
+	update_thread.join();
 	free(get_buffer);
 	free(send_buffer);
 	close(socket);
@@ -39,7 +41,7 @@ void ServerConnector::update()
 		else
 		{
 			connected = false;
-			printf("Client disconnected: %d", socket);
+			printf("Client disconnected: %d\n", socket);
 			// client disconnected
 		}
 		// send state of the game.

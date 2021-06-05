@@ -1,6 +1,8 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <thread>
+
 class ServerConnector
 {
 	public:
@@ -14,6 +16,7 @@ class ServerConnector
 		char *get_buffer;
 		char *send_buffer;
 		bool connected;
+		std::thread update_thread;
 };
 
 #endif

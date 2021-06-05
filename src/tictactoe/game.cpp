@@ -35,14 +35,11 @@ void GameServer::delete_disconnected()
 	{
 		if(client->is_connected() == false)
 		{
-			printf("socket to be deleted: %d", descriptor);
-			if(client != nullptr){
-				free(client);
-				client = nullptr;
-			}
+			delete client;
 			// deletar no ambiente do jogo.
+			printf("Deleted client %d in game server successfully!\n", descriptor);
 			active_clients.erase(descriptor);
-			printf("Deleted successfully!\n");
+			return;
 		}
 	}
 }
