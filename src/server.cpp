@@ -9,6 +9,7 @@
 
 #include "tictactoe/game.hpp"
 #include "tictactoe/server.hpp"
+#include "tictactoe/argparse.hpp"
 
 int incoming_descriptor, temp_descriptor;
 struct sockaddr_in incoming_addr;
@@ -20,14 +21,24 @@ void remove_disconnected_clients();
 
 int main(int argc, char *argv[])
 {
+	ArgParser parser;
+	parser.add_positional("a");
+	parser.add_positional("p");
+	parser.add_default("p", "12345");
+	parser.add_default("a", "127.0.0.1");
+	parser.parse(argc, argv);
+
+	std::string addr = parser.get_arg("a");
+	unsigned short port = stoi(parser.get_arg("p"));
+
 	printf("Server init\n");
 	if((incoming_descriptor = socket(AF_INET, SOCK_STREAM, 0)) < 0){
 		perror("Failed to create socket\n");
         exit(EXIT_FAILURE);
 	}
-	inet_aton(argv[1], (struct in_addr *) &incoming_addr.sin_addr.s_addr);
+	inet_aton(addr.c_str(), (struct in_addr *) &incoming_addr.sin_addr.s_addr);
 	incoming_addr.sin_family = AF_INET;
-	incoming_addr.sin_port = htons((unsigned short) atoi(argv[2]));
+	incoming_addr.sin_port = htons(port);
 	
 	if((bind(incoming_descriptor, (struct sockaddr*) &incoming_addr, sizeof(incoming_addr))) < 0){
 		perror("Failed in bind\n");

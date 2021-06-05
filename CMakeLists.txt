@@ -10,6 +10,8 @@ add_library(
     src/tictactoe/game.hpp
     src/tictactoe/server.cpp
 	src/tictactoe/server.hpp
+	src/tictactoe/argparse.cpp
+	src/tictactoe/argparse.hpp
 )
     
 set(THREADS_PREFER_PTHREAD_FLAG ON)
