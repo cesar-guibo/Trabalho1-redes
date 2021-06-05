@@ -7,7 +7,8 @@
 #include <errno.h>
 #include <thread>
 
-#include "tictactoe/game_server.hpp"
+#include "tictactoe/game.hpp"
+#include "tictactoe/server.hpp"
 
 int incoming_descriptor, temp_descriptor;
 struct sockaddr_in incoming_addr;

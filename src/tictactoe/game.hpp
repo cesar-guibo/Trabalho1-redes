@@ -1,39 +1,9 @@
-#ifndef _GAME_SERVER_H
-#define _GAME_SERVER_H
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <thread>
-#include <map>
-#include <unordered_map>
 #include <string>
+#include <map>
+#include <utility>
+#include <unordered_map>
 
-#include <sys/socket.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <errno.h>
-
-class ServerConnector
-{
-	public:
-		ServerConnector(int socket);
-		~ServerConnector();
-		void update();
-		bool is_connected();
-
-	private:
-		int socket;
-		char *get_buffer;
-		char *send_buffer;
-		bool connected;
-};
-
-
-// Game related
+#include "server.hpp"
 
 class Player
 {
@@ -68,6 +38,3 @@ class GameServer
 		std::map<int, Room*> rooms;
 		std::unordered_map<int, ServerConnector*> active_clients; // [socket_descriptor, ServerConnector]
 };
-
-
-#endif
