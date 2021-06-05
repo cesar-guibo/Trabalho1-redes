@@ -1,3 +1,6 @@
+#ifndef GAME_H
+#define GAME_H
+
 #include <string>
 #include <map>
 #include <utility>
@@ -38,3 +41,5 @@ class GameServer
 		std::map<int, Room*> rooms;
 		std::unordered_map<int, ServerConnector*> active_clients; // [socket_descriptor, ServerConnector]
 };
+
+#endif

@@ -1,5 +1,5 @@
-#ifndef _GAME_SERVER_H
-#define _GAME_SERVER_H
+#ifndef SERVER_H
+#define SERVER_H
 
 class ServerConnector
 {
