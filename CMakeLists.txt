@@ -12,6 +12,10 @@ add_library(
 	src/tictactoe/server.hpp
 	src/tictactoe/argparse.cpp
 	src/tictactoe/argparse.hpp
+    src/tictactoe/serializable.hpp
+    src/tictactoe/serializable.cpp
+    src/tictactoe/game_messages.hpp
+    src/tictactoe/game_messages.cpp
 )
     
 set(THREADS_PREFER_PTHREAD_FLAG ON)

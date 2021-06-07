@@ -7,23 +7,34 @@
 #include <unordered_map>
 
 #include "server.hpp"
+#include "serializable.hpp"
 
-class Player
+class Player : Serializable
 {
 	public:
 		Player(int id, std::string name);
 		int get_id();
+        std::string get_name();
+        std::string serialize();
+        static Player *parse(std::string serialized);
 	
 	private:
 		int id;
 		std::string name;
 };
 
-class Room
+class Room : Serializable
 {
 	public:
 		Room(int id);
+        void add_player(Player *player) noexcept(false);
+        bool is_full();
+        static const int EMPTY_INT_FLAG;
+        static const std::string EMPTY_STR_FLAG;
 		std::pair<int, int> get_players_id();
+        std::pair<std::string, std::string> get_players_name();
+        std::string serialize();
+        static Room *parse(std::string serialized);
 	
 	private:
 		std::pair<Player*, Player*> players;
