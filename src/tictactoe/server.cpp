@@ -24,8 +24,6 @@ ServerConnector::ServerConnector(int socket):
 ServerConnector::~ServerConnector()
 {
 	update_thread.join();
-	free(get_buffer);
-	free(send_buffer);
 	close(socket);
 }
 
@@ -36,7 +34,7 @@ void ServerConnector::update()
 		int read_size = read(socket, get_buffer, 10000);
 		if(read_size > 0)
 		{
-			// i think we have to transform to json
+			
 		}
 		else
 		{
