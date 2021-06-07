@@ -8,7 +8,10 @@
 class SocketError : std::runtime_error
 {
     public:
-        SocketError() : std::runtime_error(strerror(errno)) {};
+        SocketError() : std::runtime_error("") {}
+        const char *what() {
+            return strerror(errno);
+        }
 };
 
 #endif

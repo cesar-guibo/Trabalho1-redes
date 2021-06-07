@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project(TicTacToe VERSION 0.1.0 LANGUAGES C CXX)
 
+add_definitions("-g -Wall")
+
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(
@@ -16,6 +18,10 @@ add_library(
     src/tictactoe/serializable.cpp
     src/tictactoe/game_messages.hpp
     src/tictactoe/game_messages.cpp
+    src/tictactoe/socket_address.hpp
+    src/tictactoe/socket_address.cpp
+    src/tictactoe/client.hpp
+    src/tictactoe/client.cpp
 )
     
 set(THREADS_PREFER_PTHREAD_FLAG ON)

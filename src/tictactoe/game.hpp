@@ -29,6 +29,7 @@ class Room : Serializable
 	public:
 		Room(int id);
         Room(std::string serialized_room);
+        int get_id();
         void add_player(Player *player) noexcept(false);
         bool is_full();
         static const int EMPTY_INT_FLAG;

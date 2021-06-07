@@ -3,6 +3,7 @@
 #include <sstream>
 #include <stack>
 #include <stdexcept>
+#include <iostream>
 
 DelimitersTracker::DelimitersTracker() {};
 

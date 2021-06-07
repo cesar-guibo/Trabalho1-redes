@@ -37,6 +37,11 @@ Room::Room(int id):
 	id(id), players(std::pair<Player*, Player*>(nullptr, nullptr))
 {}
 
+int Room::get_id()
+{
+    return id;
+}
+
 bool Room::is_full()
 {
     return players.first != nullptr and players.second != nullptr;
