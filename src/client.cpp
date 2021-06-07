@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     printf("Connection was established successfully\n.");
+
 	while(1){}
 
 	return 0;

@@ -3,6 +3,16 @@
 
 #include <string>
 #include <vector>
+#include <stack>
+
+class DelimitersTracker {
+    public:
+        DelimitersTracker();
+        bool is_field_end_delimiter(char ch);
+
+    private:
+        std::stack<char> open_delimiters;
+};
 
 class Serializable {
     public:

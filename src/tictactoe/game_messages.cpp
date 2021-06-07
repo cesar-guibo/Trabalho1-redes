@@ -1,74 +1,149 @@
 #include "game_messages.hpp"
+#include <iostream>
+
+void GameMessage::clear(bool delete_rooms)
+{
+    player_name.clear();
+    if (delete_rooms) {
+        for (Room *room : rooms) {
+            delete room;
+        }
+    }
+    rooms.clear();
+}
 
 std::string GameMessage::serialize()
 {
     std::string message("{");
-    message.append(std::to_string((int)type));
-    message.append(",");
-    message.append(type == MessageType::PLAYER_NAME ? player_name : "");
-    message.append(",");
-    if (type == MessageType::AVAILABLE_ROOMS) {
-        message.append("[");
-        for (Room *room : rooms)
-            message.append(room->serialize()).append(",");
-        message.pop_back();
-        message.append("]");
-    }
-    message.append(",");
-    message.append(type == MessageType::SELECTED_ROOM
-            ? std::to_string(selected_room_id) : "");
-    message.append(",");
-    message.append(type == MessageType::ENTERED_ROOM 
-            ? std::to_string((int)allowed_entry_in_room) : "");
-    message.append(",");
-    message.append(type == MessageType::GAME_STARTED
-            ? std::to_string((int)plays_first) : "");
-    message.append(",");
-    message.append(type == MessageType::GAME_STARTED
-            ? std::to_string((int)cross_or_circle) : "");
-    message.append(",");
-    if (type == MessageType::EXECUTED_PLAY) {
-        message.append("{").append(std::to_string(selected_coordinate.first))
-            .append(",").append(std::to_string(selected_coordinate.second))
-            .append("}");
-    }
-    message.append(",");
-    message.append(type == MessageType::GAME_ENDED
-            ? std::to_string((int)result) : "");
+    message.append(type_to_string()).append(",");
+    message.append(player_name).append(",");
+    message.append(rooms_to_string()).append(",");
+    message.append(selected_room_id_to_string()).append(",");
+    message.append(allowed_entry_in_room_to_string()).append(",");
+    message.append(plays_first_to_string()).append(",");
+    message.append(cross_or_cirlce_to_string()).append(",");
+    message.append(selected_coordinates_to_string()).append(",");
+    message.append(result_to_string());
     return message.append("}");
 }
 
 GameMessage *GameMessage::parse(std::string message_str)
 {
     GameMessage *message = new GameMessage();
-    message_str = message_str.substr(1, message_str.size() - 2);
     std::vector<std::string> fields = Serializable::split_fields(message_str);
-    message->type = (MessageType)stoi(fields[0]);
-    message->player_name = !fields[1].empty()
-        ? std::string(fields[1]) : std::string("");
-    message->rooms.clear();
-    if (!fields[2].empty()) {
-        fields[2] = fields[2].substr(1, fields[2].size() - 2);
-        std::vector<std::string> subfields = Serializable::split_fields(fields[2]);
-        for (std::string subfield : subfields) {
-            message->rooms.push_back(Room::parse(subfield));
-        }
-    }
-    message->selected_room_id = !fields[3].empty() ? stoi(fields[3]) : -1;
-    message->allowed_entry_in_room = !fields[4].empty() ? stoi(fields[4]) : 0; 
-    message->plays_first = !fields[5].empty() ? stoi(fields[5]) : 0; 
-    if (!fields[6].empty()) {
-        message->cross_or_circle = (CorssOrCircle)stoi(fields[6]); 
-    }
-    if (!fields[7].empty()) {
-        message->selected_coordinate = std::pair<int, int>();
-        fields[7] = fields[7].substr(1, fields[7].size() - 2);
-        std::vector<std::string> subfields = Serializable::split_fields(fields[7]);
-        message->selected_coordinate.first = stoi(subfields[0]);
-        message->selected_coordinate.first = stoi(subfields[1]);
-    }
-    if(!fields[8].empty()) {
-        message->result = (GameResult)stoi(fields[8]);
-    }
+    message->type = string_to_type(fields[0]);
+    message->player_name = fields[1];
+    message->rooms = string_to_rooms(fields[2]);
+    message->selected_room_id = string_to_selected_room_id(fields[3]);
+    message->allowed_entry_in_room = string_to_bool(fields[4]); 
+    message->plays_first = string_to_bool(fields[5]); 
+    message->cross_or_circle = string_to_cross_or_circle(fields[6]);
+    message->string_to_selected_coordinates(fields[7]);
+    message->string_to_result(fields[8]);
     return message;
+}
+
+std::string GameMessage::type_to_string()
+{
+    return std::to_string((int)type);
+}
+
+std::string GameMessage::rooms_to_string()
+{
+    std::string str("[");
+    if (type == MessageType::AVAILABLE_ROOMS) {
+        for (Room *room : rooms)
+            str.append(room->serialize()).append(",");
+        str.pop_back();
+    }
+    return str.append("]");
+}
+
+std::string GameMessage::selected_room_id_to_string()
+{
+    return type == MessageType::SELECTED_ROOM 
+        ? std::to_string(selected_room_id) : "";
+}
+
+std::string GameMessage::allowed_entry_in_room_to_string()
+{
+    return type == MessageType::ENTERED_ROOM 
+        ? std::to_string((int)allowed_entry_in_room) : "";
+}
+
+std::string GameMessage::plays_first_to_string()
+{
+    return type == MessageType::GAME_STARTED
+            ? std::to_string((int)plays_first) : "";
+}
+
+std::string GameMessage::cross_or_cirlce_to_string()
+{
+    return type == MessageType::GAME_STARTED 
+        ? std::to_string((int)cross_or_circle) : "";
+}
+
+std::string GameMessage::selected_coordinates_to_string()
+{
+    std::string str("{");
+    if (type == MessageType::EXECUTED_PLAY) {
+        str.append(std::to_string(selected_coordinate.first)).append(",");
+        str.append(std::to_string(selected_coordinate.second));
+    }
+    str.append("}");
+    return str;
+}
+
+std::string GameMessage::result_to_string()
+{
+    return type == MessageType::GAME_ENDED
+            ? std::to_string((int)result) : "";
+}
+
+MessageType GameMessage::string_to_type(std::string str)
+{
+    return (MessageType)stoi(str);
+}
+
+std::vector<Room *> GameMessage::string_to_rooms(std::string str)
+{
+    std::vector<std::string> fields = Serializable::split_fields(str);
+    std::vector<Room *> rooms;
+    if (fields.size() == 1 and fields[0].empty())
+        return rooms;
+    for (std::string field : fields) {
+        rooms.push_back(Room::parse(field));
+    }
+    return rooms;
+}
+
+int GameMessage::string_to_selected_room_id(std::string str)
+{
+    return !str.empty() ? stoi(str) : -1;
+}
+
+bool GameMessage::string_to_bool(std::string str)
+{
+    return !str.empty() ? stoi(str) : 0;
+}
+
+CrossOrCircle GameMessage::string_to_cross_or_circle(std::string str)
+{
+    return !str.empty() ? (CrossOrCircle)stoi(str) : (CrossOrCircle)0; 
+}
+
+std::pair<int, int> GameMessage::string_to_selected_coordinates(std::string str)
+{
+    std::vector<std::string> fields = Serializable::split_fields(str);
+    std::pair<int, int> coordinate;
+    if (fields.size() == 1 and fields[0].empty())
+        return coordinate;
+    coordinate.first = stoi(fields[0]);
+    coordinate.second = stoi(fields[1]);
+    return coordinate; 
+}
+
+GameResult GameMessage::string_to_result(std::string str)
+{
+    return !str.empty() ? (GameResult)stoi(str) : (GameResult)0;
 }

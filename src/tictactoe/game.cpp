@@ -1,6 +1,8 @@
 #include "game.hpp"
 #include <stdexcept>
 #include <vector>
+#include <iostream>
+#include <stdexcept>
 
 Player::Player(int id, std::string name):
 	id(id), name(name)
@@ -12,7 +14,7 @@ int Player::get_id()
 std::string Player::get_name()
 {return name;}
 
-std::string Player::serialize()
+std::string Player::serialize() 
 {
     return std::string("{")
         .append(std::to_string(id))
@@ -23,10 +25,9 @@ std::string Player::serialize()
 
 Player *Player::parse(std::string serialized)
 {
-    serialized = serialized.substr(1, serialized.size() - 2);
-    if (serialized.empty())
-        return nullptr;
     std::vector<std::string> fields = Serializable::split_fields(serialized);
+    if (fields.size() < 2)
+        return nullptr;
     Player *aux = new Player(stoi(fields[0]), fields[1]);
     return aux;
 }
@@ -84,17 +85,18 @@ std::string Room::serialize()
 
 Room *Room::parse(std::string serialized)
 {
-    serialized = serialized.substr(1, serialized.size() - 2);
     if (serialized.empty())
         return nullptr;
     std::vector<std::string> fields = Serializable::split_fields(serialized);
     Room *room = new Room(stoi(fields[0]));
-    Player *player = Player::parse(fields[1]);
-    if (player != nullptr)
+    if (!fields[1].empty()) {
+        Player *player = Player::parse(fields[1]);
         room->add_player(player);
-    player = Player::parse(fields[2]);
-    if (player != nullptr)
+    }
+    if (!fields[2].empty()) {
+        Player *player = Player::parse(fields[2]);
         room->add_player(player);
+    }
     return room;
 }
 
