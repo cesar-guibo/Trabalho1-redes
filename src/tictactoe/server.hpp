@@ -7,7 +7,9 @@
 #include "game_messages.hpp"
 #include "socket_address.hpp"
 #include "socket_error.hpp"
+
 #include <string>
+#include <mutex>
 
 class ServerConnector
 {
@@ -33,6 +35,7 @@ class GameServer
 	private:
 		std::map<int, Room*> rooms;
 		std::unordered_map<int, ServerConnector*> active_clients; // [socket_descriptor, ServerConnector]
+		std::mutex client_lock;
 };
 
 #endif

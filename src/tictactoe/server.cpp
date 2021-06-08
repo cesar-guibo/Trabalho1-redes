@@ -62,8 +62,10 @@ GameServer::GameServer(){}
 
 void GameServer::add_client(int client_descriptor)
 {
-	ServerConnector new_client(client_descriptor);
-	active_clients[client_descriptor] = &new_client;	    
+	std::lock_guard<std::mutex> lock(client_lock);
+
+	auto* new_client = new ServerConnector(client_descriptor);
+	active_clients[client_descriptor] = new_client;	    
  	GameMessage *message;
 	try{
 		message = active_clients[client_descriptor]->receive();
@@ -79,17 +81,26 @@ void GameServer::add_client(int client_descriptor)
 
 void GameServer::delete_disconnected()
 {	
+	std::lock_guard<std::mutex> lock(client_lock);
+
+	std::vector<int> to_delete;
+
 	for(auto &[descriptor, client] : active_clients)
 	{
 		if(client->is_connected() == false)
-		{
-			if(client!=nullptr)
-				delete client;
-			// deletar no ambiente do jogo.
-			printf("Deleted client %d in game server successfully!\n", descriptor);
-			active_clients.erase(descriptor);
-			return;
+		{	
+			to_delete.push_back(descriptor);
 		}
+	}
+
+	for (auto descriptor : to_delete) {
+		auto client = active_clients[descriptor];
+
+		if(client!=nullptr)
+			delete client;
+		// deletar no ambiente do jogo.
+		printf("Deleted client %d in game server successfully!\n", descriptor);
+		active_clients.erase(descriptor);
 	}
 }
 

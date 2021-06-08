@@ -61,71 +61,71 @@ int main(int argc, char *argv[])
                 << std::endl;
         }
         delete message;
-    try { 
-        message = new GameMessage();
-        message->type = MessageType::SELECTED_ROOM;
-        message->selected_room_id = 1;
-        client->send(message);
-        delete message;
-    } catch (std::exception const& e) {
-        std::cout << 4 << std::endl;
-        std::cout << e.what() << std::endl;
-        std::cout << std::endl;
-    }
-    try {
-        message = client->receive();
-        std::cout << (message->allowed_entry_in_room ? "Allowed to enter the room" : "You were denied entry to the room") 
-            << std::endl;
-        delete message;
-    } catch (std::exception const& e) {
-        std::cout << 5 << std::endl;
-        std::cout << e.what() << std::endl;
-        std::cout << std::endl;
-    }
-    try {
-        message = client->receive();
-        std::cout << (message->plays_first ? "You play first" : "You play second")
-            << std::endl 
-            << "You will play with "
-            << (message->cross_or_circle == CrossOrCircle::CROSS ? "X" : "O")
-            << std::endl;
-    } catch (std::exception const& e) {
-        std::cout << 6 << std::endl;
-        std::cout << e.what() << std::endl;
-        std::cout << std::endl;
-    }
-        bool plays_first = message->plays_first;
-        CrossOrCircle cross_or_circle = message->cross_or_circle;
-        delete message;
-    try {
-        if (plays_first) {
-            message = new GameMessage();
-            message->type = MessageType::EXECUTED_PLAY;
-            message->selected_coordinate = std::pair<int, int>(1, 1);
-            client->send(message);
-            delete message;
-        } else {
-            message = client->receive();
-            std::cout << "(" << message->selected_coordinate.first << ","
-                << message->selected_coordinate.second << ")" << std::endl;
-            delete message;
-        }
-    } catch (std::exception const& e) {
-        std::cout << 7 << std::endl;
-        std::cout << e.what() << std::endl;
-        std::cout << std::endl;
-    }
-    try {
-        message = client->receive();
-        std::cout << (message->result == GameResult::WON
-                ? "You won!" : message->result == GameResult::LOST
-                ? "You lost!" : "The match ended in a draw.");
-        delete message;
-    } catch(std::exception const& e) {
-        std::cout << 7 << std::endl;
-        std::cout << e.what() << std::endl;
-        std::cout << std::endl;
-    }
+    // try { 
+    //     message = new GameMessage();
+    //     message->type = MessageType::SELECTED_ROOM;
+    //     message->selected_room_id = 1;
+    //     client->send(message);
+    //     delete message;
+    // } catch (std::exception const& e) {
+    //     std::cout << 4 << std::endl;
+    //     std::cout << e.what() << std::endl;
+    //     std::cout << std::endl;
+    // }
+    // try {
+    //     message = client->receive();
+    //     std::cout << (message->allowed_entry_in_room ? "Allowed to enter the room" : "You were denied entry to the room") 
+    //         << std::endl;
+    //     delete message;
+    // } catch (std::exception const& e) {
+    //     std::cout << 5 << std::endl;
+    //     std::cout << e.what() << std::endl;
+    //     std::cout << std::endl;
+    // }
+    // try {
+    //     message = client->receive();
+    //     std::cout << (message->plays_first ? "You play first" : "You play second")
+    //         << std::endl 
+    //         << "You will play with "
+    //         << (message->cross_or_circle == CrossOrCircle::CROSS ? "X" : "O")
+    //         << std::endl;
+    // } catch (std::exception const& e) {
+    //     std::cout << 6 << std::endl;
+    //     std::cout << e.what() << std::endl;
+    //     std::cout << std::endl;
+    // }
+    //     bool plays_first = message->plays_first;
+    //     CrossOrCircle cross_or_circle = message->cross_or_circle;
+    //     delete message;
+    // try {
+    //     if (plays_first) {
+    //         message = new GameMessage();
+    //         message->type = MessageType::EXECUTED_PLAY;
+    //         message->selected_coordinate = std::pair<int, int>(1, 1);
+    //         client->send(message);
+    //         delete message;
+    //     } else {
+    //         message = client->receive();
+    //         std::cout << "(" << message->selected_coordinate.first << ","
+    //             << message->selected_coordinate.second << ")" << std::endl;
+    //         delete message;
+    //     }
+    // } catch (std::exception const& e) {
+    //     std::cout << 7 << std::endl;
+    //     std::cout << e.what() << std::endl;
+    //     std::cout << std::endl;
+    // }
+    // try {
+    //     message = client->receive();
+    //     std::cout << (message->result == GameResult::WON
+    //             ? "You won!" : message->result == GameResult::LOST
+    //             ? "You lost!" : "The match ended in a draw.");
+    //     delete message;
+    // } catch(std::exception const& e) {
+    //     std::cout << 7 << std::endl;
+    //     std::cout << e.what() << std::endl;
+    //     std::cout << std::endl;
+    // }
     
     /* O or X 
     std::vector<char> board;*/
