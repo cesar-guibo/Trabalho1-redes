@@ -39,10 +39,7 @@ void ServerConnector::send(GameMessage *message) noexcept(false)
     std::string message_str = message->serialize();
     int bytes_sent = ::send(socket_fd, message_str.c_str(), message_str.size(), 0);
     if (bytes_sent < (int)message_str.size())
-	{
-		connected = false;
         throw SocketError();
-	}
 }
 
 GameMessage* ServerConnector::receive() noexcept(false)
@@ -61,30 +58,93 @@ GameMessage* ServerConnector::receive() noexcept(false)
 void ServerConnector::run() noexcept(false)
 {
 	GameMessage *message;
+	std::map<int, std::shared_ptr<Room>> temp_room;
+	Player *player;
+	int number_room;
 	try{
 		message = this->receive();
-		printf("Message received: %s", message->player_name.c_str()); 	
-		Player player(socket_fd, message->player_name);
+		std::cout << "Player name received: " << message->player_name << std::endl;
+		player = new Player(socket_fd, message->player_name);
+		delete message;
 	} catch (std::exception const& e){
         std::cout << 1 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
   }
-	delete message;
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	try{
 		message = new GameMessage();
-		auto rooms = game_server.get_rooms();
-		for(auto &[number, room] : rooms)
+		temp_room = game_server.get_rooms();
+		if(temp_room.empty())
 		{
-			message->rooms.push_back(room);
+				message->player_name = " "; //this is just to not get an error.
+		}else{
+			for(auto &r: temp_room)
+				message->rooms.push_back(r.second);
 		}
-		this->send(message); 	
-		// Player player(client_descriptor, message->player_name);
+		this->send(message);
+		delete message;
 	} catch (std::exception const& e){
-        std::cout << 1 << std::endl;
+        std::cout << 2 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
   }
+	try{
+		message = this->receive();
+		number_room = message->selected_room_id;
+		delete message;
+	} catch (std::exception const& e){
+        std::cout << 3 << std::endl;
+        std::cout << e.what() << std::endl;
+        std::cout << std::endl;
+  }
+	try{
+		message = new GameMessage();
+		temp_room = game_server.get_rooms();
+		if(temp_room.count(number_room) == 0) // if we have to create the room
+		{
+			message->allowed_entry_in_room = true;
+			auto new_room = std::make_shared<Room>(number_room);
+			new_room->add_player(player);
+			game_server.add_room(number_room, new_room);
+		}else{
+			if(temp_room[number_room]->is_full()){
+				message->allowed_entry_in_room = false;
+			}
+			else{
+				temp_room[number_room]->add_player(player);
+				message->allowed_entry_in_room = true;
+			}
+		}
+		std::cout << "message server = " << message->allowed_entry_in_room << std::endl;
+		this->send(message);
+		delete message;
+	}catch(std::exception const& e){
+		std::cout << 4 << std::endl;
+        std::cout << e.what() << std::endl;
+        std::cout << std::endl;
+	}
+	try{
+		message = new GameMessage();
+		// which one will play first.
+		temp_room = game_server.get_rooms();
+		if(temp_room[number_room]->is_full()){
+			message->plays_first = false;
+			message->cross_or_circle = CrossOrCircle::CIRCLE;
+		}else{
+			message->plays_first = true;
+			message->cross_or_circle = CrossOrCircle::CROSS;
+		}
+		this->send(message);
+		delete message;
+	} catch (std::exception const& e){
+        std::cout << 5 << std::endl;
+        std::cout << e.what() << std::endl;
+        std::cout << std::endl;
+  }
+	while(1){
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
 }
 
 GameServer::GameServer(){}
@@ -107,11 +167,11 @@ void GameServer::delete_disconnected()
 
 	std::vector<int> to_delete;
 
-	for(auto &[descriptor, client] : active_clients)
+	for(auto const &client : active_clients)
 	{
-		if(client->is_connected() == false)
+		if(client.second->is_connected() == false)
 		{	
-			to_delete.push_back(descriptor);
+			to_delete.push_back(client.first);
 		}
 	}
 
@@ -122,4 +182,8 @@ void GameServer::delete_disconnected()
 	}
 }
 
+void GameServer::add_room(int number_room, std::shared_ptr<Room> room)
+{
+	rooms[number_room] = room;
+}
 

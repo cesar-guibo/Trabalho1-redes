@@ -21,6 +21,7 @@ class GameServer
 		void add_client(int client_descriptor);
 		void delete_disconnected();
 		std::map<int, std::shared_ptr<Room>> get_rooms();
+		void add_room(int number_room, std::shared_ptr<Room> room);
 
 	private:
 		std::map<int, std::shared_ptr<Room>> rooms;

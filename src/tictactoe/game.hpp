@@ -13,6 +13,7 @@
 class Player : Serializable
 {
 	public:
+        Player();
 		Player(int id, std::string name);
         Player(std::string serialized_player);
 		int get_id();

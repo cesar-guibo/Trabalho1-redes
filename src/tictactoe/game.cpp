@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <memory>
 
+Player::Player(){}
 Player::Player(int id, std::string name):
 	id(id), name(name)
 {}
