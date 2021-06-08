@@ -55,6 +55,8 @@ int main(int argc, char *argv[])
 	std::thread listen_connections_thread(listen_connections);
 	std::thread remove_disconnected_thread(remove_disconnected_clients);
 	// logic of the game
+
+	
 	
 	listen_connections_thread.join();
 	remove_disconnected_thread.join();
