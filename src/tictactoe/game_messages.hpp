@@ -2,12 +2,13 @@
 #define GAME_MESSAGES_H
 
 #include "serializable.hpp"
-#include "game.hpp"
 #include <string>
 #include <vector>
 #include <memory>
 
 #define EMPTY -1
+
+struct Room;
 
 enum class MessageType {
     PLAYER_NAME = 0,

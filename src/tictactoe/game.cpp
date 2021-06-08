@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <memory>
+#include <optional>
 
 Player::Player(){}
 Player::Player(int id, std::string name):
@@ -111,12 +112,12 @@ std::shared_ptr<Room> Room::parse(std::string serialized)
     return room;
 }
 
-void GameServer::get_plays()
+std::optional<GameMessage> Room::get_plays()
 {
 	return plays;
 }
 
-void set_plays(GameMessage &plays)
+void Room::set_plays(GameMessage &plays)
 {
-	this.plays = plays;
+	this->plays = plays;
 }

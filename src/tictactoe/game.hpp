@@ -6,6 +6,7 @@
 #include <utility>
 #include <unordered_map>
 #include <memory>
+#include <optional>
 
 #include "serializable.hpp"
 #include "game_messages.hpp"
@@ -41,12 +42,12 @@ class Room : Serializable
         std::pair<std::string, std::string> get_players_name();
         std::string serialize();
         static std::shared_ptr<Room> parse(std::string serialized);
-        void get_plays();
+        std::optional<GameMessage> get_plays();
 		void set_plays(GameMessage &plays);
 
 	private:
 		std::pair<Player*, Player*> players;
 		int id;
-        GameMessage &plays;
+        std::optional<GameMessage> plays;
 };
 #endif

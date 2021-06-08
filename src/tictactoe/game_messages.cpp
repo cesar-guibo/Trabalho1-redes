@@ -1,4 +1,6 @@
 #include "game_messages.hpp"
+
+#include "game.hpp"
 #include <iostream>
 #include <memory>
 
