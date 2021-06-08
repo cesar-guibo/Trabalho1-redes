@@ -62,9 +62,9 @@ int main(int argc, char *argv[])
         for (auto& room : message->rooms) {
             std::pair<std::string, std::string> players_name = room->get_players_name();
             std::cout << room->get_id() << ": " 
-            << (players_name.first == Room::EMPTY_STR_FLAG ? players_name.first : "")
+            << (players_name.first == Room::EMPTY_STR_FLAG ? "Empty" : players_name.first)
             << ", "
-            << (players_name.second == Room::EMPTY_STR_FLAG ? players_name.second : "")
+            << (players_name.second == Room::EMPTY_STR_FLAG ? "Empty" : players_name.second)
             << std::endl;
         }
         std::cout << "What room do you want to enter?" << std::endl;
