@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+#include <chrono>
 
 #define MESSAGE_MAX_SIZE 500
 
@@ -60,6 +61,8 @@ GameMessage* ServerConnector::receive() noexcept(false)
 
 void ServerConnector::run() noexcept(false)
 {
+	using namespace std::chrono_literals;
+
 	GameMessage *message;
 	std::map<int, std::shared_ptr<Room>> temp_room;
 	Player *player;
@@ -181,12 +184,25 @@ void ServerConnector::run() noexcept(false)
 	{
 		while(1){
 			message = game_server.get_plays(number_room);
+			
+			if (message->type == MessageType::GAME_ENDED) {
+				this->send(message);
+				return;
+			}
+
 			if(message->allowed_entry_in_room != first){
 				break;
 			}
+			
+			std::this_thread::sleep_for(50ms);
 		}
+
 		message = this->receive();
+		game_server.set_plays(message, number_room);
 		
+		if (message->type == MessageType::GAME_ENDED) {
+			break;
+		}
 	}
 }
 
@@ -232,13 +248,13 @@ void GameServer::add_room(int number_room, std::shared_ptr<Room> room)
 	rooms[number_room] = room;
 }
 
-std::optional<GameMessage> GameServer::get_plays(int number_room)
+GameMessage* GameServer::get_plays(int number_room)
 {
-	rooms[number_room]->get_plays();
+	return rooms[number_room]->get_plays();
 }
 
-void set_plays(GameMessage &plays, int number_room)
+void GameServer::set_plays(GameMessage* plays, int number_room)
 {
-	rooms[number_room]->set_plays(plays, number_room);
+	rooms[number_room]->set_plays(plays);
 }
 

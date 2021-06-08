@@ -112,14 +112,14 @@ std::shared_ptr<Room> Room::parse(std::string serialized)
     return room;
 }
 
-std::optional<GameMessage> Room::get_plays()
+GameMessage* Room::get_plays()
 {
-    //std::lock_guard<std::mutex> lock(client_lock);
+    std::lock_guard<std::mutex> lock(player_lock);
 	return plays;
 }
 
-void Room::set_plays(GameMessage &plays)
+void Room::set_plays(GameMessage* plays)
 {
-    //std::lock_guard<std::mutex> lock(client_lock);
+    std::lock_guard<std::mutex> lock(player_lock);
 	this->plays = plays;
 }
