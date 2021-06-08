@@ -12,21 +12,7 @@
 #include <mutex>
 #include <memory>
 
-class ServerConnector
-{
-	public:
-	    ServerConnector(int socket_fd) noexcept(false);
-        ~ServerConnector() noexcept(false);
-		void run() noexcept(false);
-		bool is_connected();
-        void send(GameMessage *message) noexcept(false);
-        GameMessage *receive() noexcept(false);
-
-	private:
-	    int socket_fd;
-		bool connected;
-		std::thread client_thread;
-};
+class ServerConnector;
 
 class GameServer
 {
@@ -34,11 +20,29 @@ class GameServer
 		GameServer();
 		void add_client(int client_descriptor);
 		void delete_disconnected();
+		std::map<int, std::shared_ptr<Room>> get_rooms();
 
 	private:
 		std::map<int, std::shared_ptr<Room>> rooms;
 		std::unordered_map<int, std::shared_ptr<ServerConnector>> active_clients; // [socket_descriptor, ServerConnector]
 		std::mutex client_lock;
+};
+
+class ServerConnector
+{
+	public:
+		ServerConnector(int socket_fd, GameServer &game_server) noexcept(false);
+    ~ServerConnector() noexcept(false);
+		void run() noexcept(false);
+		bool is_connected();
+    void send(GameMessage *message) noexcept(false);
+    GameMessage *receive() noexcept(false);
+
+	private:
+	  int socket_fd;
+		bool connected;
+		GameServer &game_server;
+		std::thread client_thread;
 };
 
 #endif

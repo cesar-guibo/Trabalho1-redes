@@ -17,12 +17,11 @@
 
 #define MESSAGE_MAX_SIZE 500
 
-ServerConnector::ServerConnector(int socket_fd) noexcept(false):
-	socket_fd(socket_fd), connected(true)
+ServerConnector::ServerConnector(int socket_fd, GameServer &game_server) noexcept(false):
+	socket_fd(socket_fd), connected(true), game_server(game_server)
 {
 	client_thread = std::thread(&ServerConnector::run, this); 
 }
-
 
 ServerConnector::~ServerConnector() noexcept(false)
 {
@@ -64,23 +63,42 @@ void ServerConnector::run() noexcept(false)
 	GameMessage *message;
 	try{
 		message = this->receive();
-		printf("Message received: %s", message->player_name.c_str());
-		// não sei como a gnt guarda isso. acho q precisa ter um map de socket para room. 	
-		//Player player(client_descriptor, message->player_name);	
-	} catch (std::exception const& e) {
+		printf("Message received: %s", message->player_name.c_str()); 	
+		Player player(socket_fd, message->player_name);
+	} catch (std::exception const& e){
         std::cout << 1 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
-    }
+  }
+	delete message;
+	try{
+		message = new GameMessage();
+		auto rooms = game_server.get_rooms();
+		for(auto &[number, room] : rooms)
+		{
+			message->rooms.push_back(room);
+		}
+		this->send(message); 	
+		// Player player(client_descriptor, message->player_name);
+	} catch (std::exception const& e){
+        std::cout << 1 << std::endl;
+        std::cout << e.what() << std::endl;
+        std::cout << std::endl;
+  }
 }
 
 GameServer::GameServer(){}
+
+std::map<int, std::shared_ptr<Room>> GameServer::get_rooms()
+{
+	return this->rooms;
+}
 
 void GameServer::add_client(int client_descriptor)
 {
 	std::lock_guard<std::mutex> lock(client_lock);
 
-	active_clients[client_descriptor] = std::make_shared<ServerConnector>(client_descriptor);		
+	active_clients[client_descriptor] = std::make_shared<ServerConnector>(client_descriptor, *this);		
 }
 
 void GameServer::delete_disconnected()
