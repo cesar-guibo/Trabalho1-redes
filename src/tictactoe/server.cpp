@@ -100,14 +100,17 @@ void ServerConnector::run() noexcept(false)
   }
 	try{
 		message = new GameMessage();
+		message->type = MessageType::ENTERED_ROOM;
 		temp_room = game_server.get_rooms();
+		message->allowed_entry_in_room = true;			
 		if(temp_room.count(number_room) == 0) // if we have to create the room
 		{
 			message->allowed_entry_in_room = true;
 			auto new_room = std::make_shared<Room>(number_room);
 			new_room->add_player(player);
 			game_server.add_room(number_room, new_room);
-		}else{
+		}else
+		{
 			if(temp_room[number_room]->is_full()){
 				message->allowed_entry_in_room = false;
 			}
@@ -116,7 +119,6 @@ void ServerConnector::run() noexcept(false)
 				message->allowed_entry_in_room = true;
 			}
 		}
-		std::cout << "message server = " << message->allowed_entry_in_room << std::endl;
 		this->send(message);
 		delete message;
 	}catch(std::exception const& e){
@@ -128,6 +130,7 @@ void ServerConnector::run() noexcept(false)
 		message = new GameMessage();
 		// which one will play first.
 		temp_room = game_server.get_rooms();
+		message->type = MessageType::GAME_STARTED;
 		if(temp_room[number_room]->is_full()){
 			message->plays_first = false;
 			message->cross_or_circle = CrossOrCircle::CIRCLE;
@@ -143,7 +146,7 @@ void ServerConnector::run() noexcept(false)
         std::cout << std::endl;
   }
 	while(1){
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	
 	}
 }
 

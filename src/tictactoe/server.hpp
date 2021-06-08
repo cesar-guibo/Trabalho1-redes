@@ -44,6 +44,7 @@ class ServerConnector
 		bool connected;
 		GameServer &game_server;
 		std::thread client_thread;
+		std::mutex game_lock;
 };
 
 #endif

@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
          message->type = MessageType::SELECTED_ROOM;
          //message->selected_room_id =
          std::cin >> message->selected_room_id;
+         message->plays_first = true;
          client->send(message);
          delete message;
      } catch (std::exception const& e) {
@@ -83,7 +84,6 @@ int main(int argc, char *argv[])
      }
     try {
         message = client->receive();
-        std::cout << "message received" << (message->allowed_entry_in_room) << std::endl;
         std::cout << (message->allowed_entry_in_room ? "Allowed to enter the room" : "You were denied entry to the room") 
             << std::endl;
         delete message;
@@ -129,17 +129,17 @@ int main(int argc, char *argv[])
 
     }
      
-    // try {
-    //     message = client->receive();
-    //     std::cout << (message->result == GameResult::WON
-    //             ? "You won!" : message->result == GameResult::LOST
-    //             ? "You lost!" : "The match ended in a draw.");
-    //     delete message;
-    // } catch(std::exception const& e) {
-    //     std::cout << 7 << std::endl;
-    //     std::cout << e.what() << std::endl;
-    //     std::cout << std::endl;
-    // }
+    try {
+        message = client->receive();
+        std::cout << (message->result == GameResult::WON
+                ? "You won!" : message->result == GameResult::LOST
+                ? "You lost!" : "The match ended in a draw.");
+        delete message;
+    } catch(std::exception const& e) {
+        std::cout << 7 << std::endl;
+        std::cout << e.what() << std::endl;
+        std::cout << std::endl;
+    }
     
     /* O or X 
     std::vector<char> board;*/
