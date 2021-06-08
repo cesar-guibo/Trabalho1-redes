@@ -70,29 +70,35 @@ int main(int argc, char *argv[])
         std::cout << "What room do you want to enter?" << std::endl;
     }
     delete message;
-    try { 
-         message = new GameMessage();
-         message->type = MessageType::SELECTED_ROOM;
-         //message->selected_room_id =
-         std::cin >> message->selected_room_id;
-         message->plays_first = true;
-         client->send(message);
-         delete message;
-     } catch (std::exception const& e) {
-         std::cout << 4 << std::endl;
-         std::cout << e.what() << std::endl;
-         std::cout << std::endl;
-     }
-    try {
-        message = client->receive();
-        std::cout << (message->allowed_entry_in_room ? "Allowed to enter the room" : "You were denied entry to the room") 
-            << std::endl;
-        delete message;
-    } catch (std::exception const& e) {
-        std::cout << 5 << std::endl;
-        std::cout << e.what() << std::endl;
-        std::cout << std::endl;
+    while(1){
+        try { 
+            message = new GameMessage();
+            message->type = MessageType::SELECTED_ROOM;
+            //message->selected_room_id =
+            std::cin >> message->selected_room_id;
+            message->plays_first = true;
+            client->send(message);
+            delete message;
+        } catch (std::exception const& e) {
+            std::cout << 4 << std::endl;
+            std::cout << e.what() << std::endl;
+            std::cout << std::endl;
+        }
+        try {
+            message = client->receive();
+            std::cout << (message->allowed_entry_in_room ? "Allowed to enter the room" : "You were denied entry to the room") 
+                << std::endl;
+            if(message->allowed_entry_in_room) break;
+            else
+                std::cout << "Pick another room: " << std::endl;
+            delete message;
+        } catch (std::exception const& e) {
+            std::cout << 5 << std::endl;
+            std::cout << e.what() << std::endl;
+            std::cout << std::endl;
+        }
     }
+    
     try {
         message = client->receive();
         std::cout << (message->plays_first ? "You play first" : "You play second")
