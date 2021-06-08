@@ -111,3 +111,12 @@ std::shared_ptr<Room> Room::parse(std::string serialized)
     return room;
 }
 
+void GameServer::get_plays()
+{
+	return plays;
+}
+
+void set_plays(GameMessage &plays)
+{
+	this.plays = plays;
+}

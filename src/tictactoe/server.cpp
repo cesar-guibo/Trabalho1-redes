@@ -27,7 +27,8 @@ ServerConnector::ServerConnector(int socket_fd, GameServer &game_server) noexcep
 
 ServerConnector::~ServerConnector() noexcept(false)
 {
-    if (shutdown(socket_fd, SHUT_RDWR) < 0)
+		client_thread.join();
+		if (shutdown(socket_fd, SHUT_RDWR) < 0)
         throw SocketError();
 }
 
@@ -140,8 +141,15 @@ void ServerConnector::run() noexcept(false)
 					std::cout << std::endl;
 		}
 	}
-	
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	
+	while(1)
+	{
+		temp_room = game_server.get_rooms();
+		if(temp_room[number_room]->is_full()) break;
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+	bool first;
 	try{
 		message = new GameMessage();
 		// which one will play first.
@@ -154,6 +162,7 @@ void ServerConnector::run() noexcept(false)
 			message->plays_first = true;
 			message->cross_or_circle = CrossOrCircle::CROSS;
 		}
+		first = message->plays_first;
 		this->send(message);
 		delete message;
 	} catch (std::exception const& e){
@@ -161,8 +170,13 @@ void ServerConnector::run() noexcept(false)
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
   }
-	while(1){
-	
+	if(first)
+	{
+		message = this->receive();
+	}
+	while(1)
+	{
+		
 	}
 }
 
@@ -206,5 +220,15 @@ void GameServer::add_room(int number_room, std::shared_ptr<Room> room)
 {
 	std::lock_guard<std::mutex> lock(client_lock);
 	rooms[number_room] = room;
+}
+
+void GameServer::get_plays()
+{
+	// pegar o plays do room. acho q tem q passar o int do room.
+}
+
+void set_plays(GameMessage &plays)
+{
+	//this.plays = plays;
 }
 

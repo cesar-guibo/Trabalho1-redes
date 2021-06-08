@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
         }
     }
     
-    try {
+   /* try {
         message = client->receive();
         std::cout << (message->plays_first ? "You play first" : "You play second")
             << std::endl 
@@ -132,10 +132,6 @@ int main(int argc, char *argv[])
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
     }
-    while(1){
-
-    }
-     
     try {
         message = client->receive();
         std::cout << (message->result == GameResult::WON
@@ -147,7 +143,7 @@ int main(int argc, char *argv[])
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
     }
-    
+    */
     /* O or X 
     std::vector<char> board;*/
 
