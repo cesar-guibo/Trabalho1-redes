@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <unistd.h>
+#include <iostream>
 
 #include <sys/socket.h>
 #include <stdio.h>
@@ -14,41 +15,82 @@
 #include <netdb.h>
 #include <errno.h>
 
-// Comunication
-ServerConnector::ServerConnector(int socket):
-	socket(socket), connected(true)
+#define MESSAGE_MAX_SIZE 500
+
+ServerConnector::ServerConnector(int socket_fd) noexcept(false):
+	socket_fd(socket_fd), connected(true)
 {
-	update_thread = std::thread(&ServerConnector::update, this);
-}
-		
-ServerConnector::~ServerConnector()
-{
-	update_thread.join();
-	close(socket);
 }
 
-void ServerConnector::update()
+
+ServerConnector::~ServerConnector() noexcept(false)
 {
-	while(connected)
+    if (shutdown(socket_fd, SHUT_RDWR) < 0)
+        throw SocketError();
+}
+
+bool ServerConnector::is_connected()
+{
+	return connected;
+}
+        
+void ServerConnector::send(GameMessage *message) noexcept(false)
+{
+    std::string message_str = message->serialize();
+    int bytes_sent = ::send(socket_fd, message_str.c_str(), message_str.size(), 0);
+    if (bytes_sent < (int)message_str.size())
 	{
-		int read_size = read(socket, get_buffer, 10000);
-		if(read_size > 0)
-		{
-			
-		}
-		else
-		{
-			connected = false;
-			printf("Client disconnected: %d\n", socket);
-			// client disconnected
-		}
-		// send state of the game.
+		connected = false;
+        throw SocketError();
 	}
 }
 
-bool ServerConnector::is_connected(){return connected;}
+GameMessage* ServerConnector::receive() noexcept(false)
+{
+    char buffer[MESSAGE_MAX_SIZE];
+    int bytes_received = ::recv(socket_fd, buffer, MESSAGE_MAX_SIZE, 0);
+    if (bytes_received < 0)
+	{
+		connected = false;
+        throw SocketError();	
+	}
+    buffer[bytes_received] = '\0';
+    return GameMessage::parse(std::string(buffer));
+}
 
+GameServer::GameServer(){}
 
+void GameServer::add_client(int client_descriptor)
+{
+	ServerConnector new_client(client_descriptor);
+	active_clients[client_descriptor] = &new_client;	    
+ 	GameMessage *message;
+	try{
+		message = active_clients[client_descriptor]->receive();
+		printf("Message received: %s", message->player_name);
+		Player player(client_descriptor, message->player_name);	
+    } catch (std::exception const& e) {
+        std::cout << 1 << std::endl;
+        std::cout << e.what() << std::endl;
+        std::cout << std::endl;
+    }
+		
+}
 
-// Game related
+void GameServer::delete_disconnected()
+{	
+	for(auto &[descriptor, client] : active_clients)
+	{
+		if(client->is_connected() == false)
+		{
+			if(client!=nullptr)
+				delete client;
+			// deletar no ambiente do jogo.
+			printf("Deleted client %d in game server successfully!\n", descriptor);
+			active_clients.erase(descriptor);
+			return;
+		}
+	}
+}
+
 

@@ -14,7 +14,7 @@
 int incoming_descriptor, temp_descriptor;
 struct sockaddr_in incoming_addr;
 socklen_t addr_size;
-GameServer server;	
+GameServer game;	
 
 void listen_connections();
 void remove_disconnected_clients();
@@ -30,7 +30,9 @@ int main(int argc, char *argv[])
 
 	std::string addr = parser.get_arg("a");
 	unsigned short port = stoi(parser.get_arg("p"));
-
+    SocketAddress server_address(addr, port);
+    GameMessage message;
+ 
 	printf("Server init\n");
 	if((incoming_descriptor = socket(AF_INET, SOCK_STREAM, 0)) < 0){
 		perror("Failed to create socket\n");
@@ -50,13 +52,11 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	// thread for connection (new clients)
-	//listen_connections();
 	std::thread listen_connections_thread(listen_connections);
 	std::thread remove_disconnected_thread(remove_disconnected_clients);
-	// logic of the game
 
-	
+		
+
 	
 	listen_connections_thread.join();
 	remove_disconnected_thread.join();
@@ -71,9 +71,8 @@ void listen_connections()
 		addr_size = sizeof(incoming_addr);
 		temp_descriptor = accept(incoming_descriptor, (struct sockaddr*) &incoming_addr, &addr_size);
 		printf("Accepted connection at descriptor %d\n", temp_descriptor);
-		server.add_client(temp_descriptor);
+		game.add_client(temp_descriptor);
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	// thread sleep	
 	}
 }
 
@@ -81,8 +80,7 @@ void remove_disconnected_clients()
 {
 	while(1)
 	{
-		server.delete_disconnected();
-		// disconnect in the game.
+		game.delete_disconnected();
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	}

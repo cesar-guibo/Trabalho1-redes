@@ -105,28 +105,3 @@ Room *Room::parse(std::string serialized)
     return room;
 }
 
-
-GameServer::GameServer(){}
-
-void GameServer::add_client(int client_descriptor)
-{
-	ServerConnector *new_client;
-	new_client = new ServerConnector(client_descriptor);
-	active_clients[client_descriptor] = new_client;			
-}
-
-void GameServer::delete_disconnected()
-{	
-	for(auto &[descriptor, client] : active_clients)
-	{
-		if(client->is_connected() == false)
-		{
-			if(client!=nullptr)
-				delete client;
-			// deletar no ambiente do jogo.
-			printf("Deleted client %d in game server successfully!\n", descriptor);
-			active_clients.erase(descriptor);
-			return;
-		}
-	}
-}

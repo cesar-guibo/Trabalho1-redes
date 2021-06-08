@@ -6,8 +6,8 @@
 #include <utility>
 #include <unordered_map>
 
-#include "server.hpp"
 #include "serializable.hpp"
+//#include "server.hpp"
 
 class Player : Serializable
 {
@@ -43,17 +43,4 @@ class Room : Serializable
 		std::pair<Player*, Player*> players;
 		int id;
 };
-
-class GameServer
-{
-	public:
-		GameServer();
-		void add_client(int client_descriptor);
-		void delete_disconnected();
-
-	private:
-		std::map<int, Room*> rooms;
-		std::unordered_map<int, ServerConnector*> active_clients; // [socket_descriptor, ServerConnector]
-};
-
 #endif
