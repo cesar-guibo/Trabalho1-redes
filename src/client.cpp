@@ -48,51 +48,40 @@ int main(int argc, char *argv[])
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
     }
-    try{
+
+    while(true) {
         message = client->receive();
-    } catch (std::exception const& e) {
-        std::cout << 3 << std::endl;
-        std::cout << e.what() << std::endl;
-        std::cout << std::endl;
-    }
-    if(message->rooms.empty()){
-        std::cout << "No rooms available."
-        << " Input the number of the room you want to create:" << std::endl;
-    }else{
-        for (auto& room : message->rooms) {
-            std::pair<std::string, std::string> players_name = room->get_players_name();
-            std::cout << room->get_id() << ": " 
-            << (players_name.first == Room::EMPTY_STR_FLAG ? "Empty" : players_name.first)
-            << ", "
-            << (players_name.second == Room::EMPTY_STR_FLAG ? "Empty" : players_name.second)
-            << std::endl;
+        if(message->rooms.empty()){
+            std::cout << "No rooms available."
+            << " Input the number of the room you want to create:" << std::endl;
+        }else{
+            for (auto& room : message->rooms) {
+                std::pair<std::string, std::string> players_name = room->get_players_name();
+                std::cout << room->get_id() << ": " 
+                << (players_name.first == Room::EMPTY_STR_FLAG ? "Empty" : players_name.first)
+                << ", "
+                << (players_name.second == Room::EMPTY_STR_FLAG ? "Empty" : players_name.second)
+                << std::endl;
+            }
+            std::cout << "What room do you want to enter?" << std::endl;
         }
-        std::cout << "What room do you want to enter?" << std::endl;
-    }
-    delete message;
-    try { 
-         message = new GameMessage();
-         message->type = MessageType::SELECTED_ROOM;
-         //message->selected_room_id =
-         std::cin >> message->selected_room_id;
-         message->plays_first = true;
-         client->send(message);
-         delete message;
-     } catch (std::exception const& e) {
-         std::cout << 4 << std::endl;
-         std::cout << e.what() << std::endl;
-         std::cout << std::endl;
-     }
-    try {
-        message = client->receive();
-        std::cout << (message->allowed_entry_in_room ? "Allowed to enter the room" : "You were denied entry to the room") 
-            << std::endl;
+        message->clear();
+        message->type = MessageType::SELECTED_ROOM;
+        std::cin >> message->selected_room_id;
+        message->plays_first = true;
+        client->send(message);
         delete message;
-    } catch (std::exception const& e) {
-        std::cout << 5 << std::endl;
-        std::cout << e.what() << std::endl;
-        std::cout << std::endl;
+        message = client->receive();
+        if (message->allowed_entry_in_room) {
+            std::cout << "Allowed to enter the room" << std::endl;
+            break;
+        }
+        std::cout << "You were denied entry to the room" << std::endl;
+        delete message;
     }
+
+    bool plays_first;
+    CrossOrCircle cross_or_circle;
     try {
         message = client->receive();
         std::cout << (message->plays_first ? "You play first" : "You play second")
@@ -100,35 +89,53 @@ int main(int argc, char *argv[])
             << "You will play with "
             << (message->cross_or_circle == CrossOrCircle::CROSS ? "X" : "O")
             << std::endl;
-            bool plays_first = message->plays_first;
-        CrossOrCircle cross_or_circle = message->cross_or_circle;
+        plays_first = message->plays_first;
+        cross_or_circle = message->cross_or_circle;
         delete message;
-        try {
-            if (plays_first) {
-                message = new GameMessage();
-                message->type = MessageType::EXECUTED_PLAY;
-                message->selected_coordinate = std::pair<int, int>(1, 1);
-                client->send(message);
-                delete message;
-            } else {
-                message = client->receive();
-                std::cout << "(" << message->selected_coordinate.first << ","
-                    << message->selected_coordinate.second << ")" << std::endl;
-                delete message;
-            }
-        } catch (std::exception const& e) {
-            std::cout << 7 << std::endl;
-            std::cout << e.what() << std::endl;
-            std::cout << std::endl;
-        }
     } catch (std::exception const& e) {
         std::cout << 6 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
     }
-    while(1){
 
+    Board board;
+    std::cout << board.to_string();
+    if (plays_first) {
+        std::cout << "Make your move: " << std::endl;
+        message = new GameMessage();
+        message->type = MessageType::EXECUTED_PLAY;
+
+        std::cin >> message->selected_coordinate.first;
+        std::cin >> message->selected_coordinate.second;
+        board.mark_chosen(cross_or_circle, message->selected_coordinate);
+        std::cout << board.to_string();
+
+        client->send(message);
+        delete message;
     }
+    while(board.get_state() == BoardState::NOT_FINISHED) {
+        try {
+            std::cout << "Waiting for your opponents move" << std::endl;
+            message = client->receive();
+            board.mark_chosen(cross_or_circle, message->selected_coordinate);
+            std::cout << board.to_string();
+
+            std::cout << "Make your move:" << std::endl;
+            message->clear();
+            message->type = MessageType::EXECUTED_PLAY;
+            std::cin >> message->selected_coordinate.first;
+            std::cin >> message->selected_coordinate.second;
+            board.mark_chosen(cross_or_circle, message->selected_coordinate);
+            std::cout << board.to_string();
+            client->send(message);
+            delete message;
+        } catch (std::exception const& e) {
+            std::cout << 7 << std::endl;
+            std::cout << e.what() << std::endl;
+            std::cout << std::endl;
+        }
+    }
+    std::cout << "The game has ended" << std::endl;
      
     try {
         message = client->receive();

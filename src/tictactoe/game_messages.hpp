@@ -21,10 +21,6 @@ enum class MessageType {
     CONNECTION_CLOSED 
 };
 
-enum class CrossOrCircle {
-    CROSS, CIRCLE
-};
-
 enum GameResult {
     WON, LOST, TIED
 };

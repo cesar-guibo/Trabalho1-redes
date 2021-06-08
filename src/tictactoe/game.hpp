@@ -45,4 +45,32 @@ class Room : Serializable
 		std::pair<Player*, Player*> players;
 		int id;
 };
+
+enum class CrossOrCircle {
+    CROSS, CIRCLE
+};
+
+enum class BoardState {
+    CROSS_WON,
+    CIRCLE_WON,
+    NOT_FINISHED,
+    TIED
+};
+
+class Board
+{
+    public:
+        Board();
+        ~Board();
+        void mark_chosen(CrossOrCircle c, std::pair<int, int> position)
+            noexcept(false);
+        BoardState get_state();
+        std::string to_string();
+
+    private:
+        std::array<std::array<char, 3>, 3> board;
+        bool has_won(CrossOrCircle c);
+        bool is_full();
+};
+
 #endif

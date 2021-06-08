@@ -153,9 +153,9 @@ void ServerConnector::run() noexcept(false)
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
   }
-	while(1){
+  while(1){
 	
-	}
+  }
 }
 
 GameServer::GameServer(){}

@@ -111,3 +111,82 @@ std::shared_ptr<Room> Room::parse(std::string serialized)
     return room;
 }
 
+Board::Board()
+{
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            board[i][j] = ' ';
+        }
+    }
+}
+
+Board::~Board() {}
+
+void Board::mark_chosen(CrossOrCircle c, std::pair<int, int> position)
+noexcept(false)
+{
+    if (board[position.second][position.first] != ' ')
+        throw std::invalid_argument("Position is already marked");
+    if (c == CrossOrCircle::CROSS)
+        board[position.second][position.first] = 'X';
+    else 
+        board[position.second][position.first] = 'O';
+}
+
+bool Board::has_won(CrossOrCircle c)
+{
+    char ch = c == CrossOrCircle::CROSS ? 'X' : 'O';
+    bool some_column = false;
+    bool some_line = false;
+    bool main_diagonal = true;
+    bool secondary_diagonal = true;
+    for (int i = 0; i < 3; i++) {
+        main_diagonal = main_diagonal and board[i][i] == ch;
+        secondary_diagonal = secondary_diagonal and board[i][3-i] == ch;
+        bool column = true;
+        bool line = true;
+        for (int j = 0; j < 3; j++) {
+            column = column and board[i][j] == ch;
+            line = line and board[j][i] == ch;
+        }
+        some_column = some_column or column;
+        some_line = some_line or line;
+    }
+    return some_column or some_line or main_diagonal or secondary_diagonal;
+}
+
+bool Board::is_full()
+{
+    bool is_full = true;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            is_full = is_full and board[i][j] != ' ';
+        }
+    }
+    return is_full;
+}
+
+BoardState Board::get_state()
+{
+    if (has_won(CrossOrCircle::CROSS))
+        return BoardState::CROSS_WON;
+    if (has_won(CrossOrCircle::CIRCLE)) 
+        return BoardState::CIRCLE_WON;
+    if (is_full())
+        return BoardState::TIED;
+    return BoardState::NOT_FINISHED;
+}
+
+std::string Board::to_string()
+{
+    std::string str("  |   |  \n--+---+--\n  |   |  \n--+---+--\n  |   |  \n");
+    int str_index = 0;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            str[str_index + 4 * j] = board[i][j];
+        }
+        str_index += 20;
+    }
+    return str;
+}
+
