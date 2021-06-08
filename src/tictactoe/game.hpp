@@ -49,5 +49,6 @@ class Room : Serializable
 		std::pair<Player*, Player*> players;
 		int id;
         std::optional<GameMessage> plays;
+        //std::mutex player_lock;
 };
 #endif

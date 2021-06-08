@@ -173,9 +173,19 @@ void ServerConnector::run() noexcept(false)
 	if(first)
 	{
 		message = this->receive();
+		message->allowed_entry_in_room = first;
+		game_server.set_plays(message, number_room);
+
 	}
 	while(1)
 	{
+		while(1){
+			message = game_server.get_plays(number_room);
+			if(message->allowed_entry_in_room != first){
+				break;
+			}
+		}
+		message = this->receive();
 		
 	}
 }
@@ -222,13 +232,13 @@ void GameServer::add_room(int number_room, std::shared_ptr<Room> room)
 	rooms[number_room] = room;
 }
 
-void GameServer::get_plays()
+std::optional<GameMessage> GameServer::get_plays(int number_room)
 {
-	// pegar o plays do room. acho q tem q passar o int do room.
+	rooms[number_room]->get_plays();
 }
 
-void set_plays(GameMessage &plays)
+void set_plays(GameMessage &plays, int number_room)
 {
-	//this.plays = plays;
+	rooms[number_room]->set_plays(plays, number_room);
 }
 

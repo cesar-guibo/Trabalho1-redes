@@ -11,6 +11,7 @@
 #include <string>
 #include <mutex>
 #include <memory>
+#include <optional>
 
 class ServerConnector;
 
@@ -22,8 +23,8 @@ class GameServer
 		void delete_disconnected();
 		std::map<int, std::shared_ptr<Room>> get_rooms();
 		void add_room(int number_room, std::shared_ptr<Room> room);
-		void get_plays();
-		void set_plays(GameMessage &plays);
+		void get_plays(int number_room);
+		void set_plays(GameMessage &plays, int number_room);
 
 	private:
 		std::map<int, std::shared_ptr<Room>> rooms;
@@ -40,6 +41,8 @@ class ServerConnector
 		bool is_connected();
     void send(GameMessage *message) noexcept(false);
     GameMessage *receive() noexcept(false);
+		std::optional<GameMessage> get_plays(int number_room);
+		void set_plays(GameMessage &plays, int number_room); 
 
 	private:
 	  int socket_fd;
