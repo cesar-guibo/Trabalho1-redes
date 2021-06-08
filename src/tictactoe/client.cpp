@@ -27,7 +27,7 @@ void ClientConnector::send(GameMessage *message) noexcept(false)
 {
     std::string message_str = message->serialize();
     int bytes_sent = ::send(socket_fd, message_str.c_str(), message_str.size(), 0);
-    if (bytes_sent < message_str.size())
+    if (bytes_sent < (int)message_str.size())
         throw SocketError();
 }
 

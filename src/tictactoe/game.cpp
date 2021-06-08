@@ -34,7 +34,7 @@ Player *Player::parse(std::string serialized)
 	
 
 Room::Room(int id):
-	id(id), players(std::pair<Player*, Player*>(nullptr, nullptr))
+	players(std::pair<Player*, Player*>(nullptr, nullptr)), id(id)
 {}
 
 int Room::get_id()

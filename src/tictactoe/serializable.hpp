@@ -17,6 +17,7 @@ class DelimitersTracker {
 class Serializable {
     public:
         Serializable();
+        virtual ~Serializable();
         virtual std::string serialize();
         static std::vector<std::string> split_fields(std::string serialized);
 };

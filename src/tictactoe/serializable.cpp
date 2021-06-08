@@ -23,6 +23,8 @@ bool DelimitersTracker::is_field_end_delimiter(char ch)
 
 Serializable::Serializable() {}
 
+Serializable::~Serializable() {};
+
 std::string Serializable::serialize()
 {return std::string("");};
 

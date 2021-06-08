@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     GameMessage *message;
     try {
         client = new ClientConnector(server_address);
-    } catch (std::exception e) {
+    } catch (std::exception const& e) {
         std::cout << 1 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
@@ -39,14 +39,14 @@ int main(int argc, char *argv[])
         client->send(message);
         message->clear();
         delete message;
-    } catch (std::exception e) {
+    } catch (std::exception const& e) {
         std::cout << 2 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
     }
     try{
         message = client->receive();
-    } catch (std::exception e) {
+    } catch (std::exception const& e) {
         std::cout << 3 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
         message->selected_room_id = 1;
         client->send(message);
         delete message;
-    } catch (std::exception e) {
+    } catch (std::exception const& e) {
         std::cout << 4 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
         std::cout << (message->allowed_entry_in_room ? "Allowed to enter the room" : "You were denied entry to the room") 
             << std::endl;
         delete message;
-    } catch (std::exception e) {
+    } catch (std::exception const& e) {
         std::cout << 5 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
             << "You will play with "
             << (message->cross_or_circle == CrossOrCircle::CROSS ? "X" : "O")
             << std::endl;
-    } catch (std::exception e) {
+    } catch (std::exception const& e) {
         std::cout << 6 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
                 << message->selected_coordinate.second << ")" << std::endl;
             delete message;
         }
-    } catch (std::exception e) {
+    } catch (std::exception const& e) {
         std::cout << 7 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
                 ? "You won!" : message->result == GameResult::LOST
                 ? "You lost!" : "The match ended in a draw.");
         delete message;
-    } catch(std::exception e) {
+    } catch(std::exception const& e) {
         std::cout << 7 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
