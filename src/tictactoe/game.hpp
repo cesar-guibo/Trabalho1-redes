@@ -5,6 +5,7 @@
 #include <map>
 #include <utility>
 #include <unordered_map>
+#include <memory>
 
 #include "serializable.hpp"
 //#include "server.hpp"
@@ -37,7 +38,7 @@ class Room : Serializable
 		std::pair<int, int> get_players_id();
         std::pair<std::string, std::string> get_players_name();
         std::string serialize();
-        static Room *parse(std::string serialized);
+        static std::shared_ptr<Room> parse(std::string serialized);
 	
 	private:
 		std::pair<Player*, Player*> players;

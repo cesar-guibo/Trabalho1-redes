@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
+#include <memory>
 
 Player::Player(int id, std::string name):
 	id(id), name(name)
@@ -88,12 +89,12 @@ std::string Room::serialize()
         .append("}");
 }
 
-Room *Room::parse(std::string serialized)
+std::shared_ptr<Room> Room::parse(std::string serialized)
 {
     if (serialized.empty())
         return nullptr;
     std::vector<std::string> fields = Serializable::split_fields(serialized);
-    Room *room = new Room(stoi(fields[0]));
+    auto room = std::make_shared<Room>(stoi(fields[0]));
     if (!fields[1].empty()) {
         Player *player = Player::parse(fields[1]);
         room->add_player(player);

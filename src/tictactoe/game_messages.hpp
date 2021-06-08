@@ -5,6 +5,7 @@
 #include "game.hpp"
 #include <string>
 #include <vector>
+#include <memory>
 
 #define EMPTY -1
 
@@ -34,7 +35,7 @@ class GameMessage : Serializable {
         /* player_name is used for PLAYER_NAME message types. */
         std::string player_name;
         /* rooms is used for AVAILABLE_ROOMS message types. */
-        std::vector<Room*> rooms;
+        std::vector<std::shared_ptr<Room>> rooms;
         /* selected_room_id is used for SELECTED_ROOM message types. */
         int selected_room_id;
         /* allowed_entry_in_room is used for ENTERED_ROOM message types */
@@ -48,7 +49,7 @@ class GameMessage : Serializable {
         /* result is used for GAME_ENDED message types */
         GameResult result;
 
-        void clear(bool delete_rooms=false);
+        void clear();
 
         std::string serialize();
         static GameMessage *parse(std::string message_str);
@@ -64,7 +65,7 @@ class GameMessage : Serializable {
         std::string result_to_string();
 
         static MessageType string_to_type(std::string str);
-        static std::vector<Room *> string_to_rooms(std::string str);
+        static std::vector<std::shared_ptr<Room>> string_to_rooms(std::string str);
         static int string_to_selected_room_id(std::string str);
         static bool string_to_bool(std::string str);
         static CrossOrCircle string_to_cross_or_circle(std::string str);

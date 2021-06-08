@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
     }
-        for (Room *room : message->rooms) {
+        for (auto& room : message->rooms) {
             std::pair<std::string, std::string> players_name = room->get_players_name();
             std::cout << room->get_id() << ": " 
                 << (players_name.first == Room::EMPTY_STR_FLAG ? players_name.first : "")

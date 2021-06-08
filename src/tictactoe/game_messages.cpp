@@ -1,14 +1,10 @@
 #include "game_messages.hpp"
 #include <iostream>
+#include <memory>
 
-void GameMessage::clear(bool delete_rooms)
+void GameMessage::clear()
 {
     player_name.clear();
-    if (delete_rooms) {
-        for (Room *room : rooms) {
-            delete room;
-        }
-    }
     rooms.clear();
 }
 
@@ -52,7 +48,7 @@ std::string GameMessage::rooms_to_string()
 {
     std::string str("[");
     if (type == MessageType::AVAILABLE_ROOMS) {
-        for (Room *room : rooms)
+        for (auto& room : rooms)
             str.append(room->serialize()).append(",");
         str.pop_back();
     }
@@ -105,14 +101,14 @@ MessageType GameMessage::string_to_type(std::string str)
     return (MessageType)stoi(str);
 }
 
-std::vector<Room *> GameMessage::string_to_rooms(std::string str)
+std::vector<std::shared_ptr<Room>> GameMessage::string_to_rooms(std::string str)
 {
     std::vector<std::string> fields = Serializable::split_fields(str);
-    std::vector<Room *> rooms;
+    std::vector<std::shared_ptr<Room>> rooms;
     if (fields.size() == 1 and fields[0].empty())
         return rooms;
     for (std::string field : fields) {
-        rooms.push_back(Room::parse(field));
+        rooms.emplace_back(Room::parse(field));
     }
     return rooms;
 }

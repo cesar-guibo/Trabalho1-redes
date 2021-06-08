@@ -10,6 +10,7 @@
 
 #include <string>
 #include <mutex>
+#include <memory>
 
 class ServerConnector
 {
@@ -35,8 +36,8 @@ class GameServer
 		void delete_disconnected();
 
 	private:
-		std::map<int, Room*> rooms;
-		std::unordered_map<int, ServerConnector*> active_clients; // [socket_descriptor, ServerConnector]
+		std::map<int, std::shared_ptr<Room>> rooms;
+		std::unordered_map<int, std::shared_ptr<ServerConnector>> active_clients; // [socket_descriptor, ServerConnector]
 		std::mutex client_lock;
 };
 

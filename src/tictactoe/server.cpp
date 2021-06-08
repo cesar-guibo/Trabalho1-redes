@@ -64,7 +64,7 @@ void ServerConnector::run() noexcept(false)
 	GameMessage *message;
 	try{
 		message = this->receive();
-		printf("Message received: %s", message->player_name);
+		printf("Message received: %s", message->player_name.c_str());
 		// não sei como a gnt guarda isso. acho q precisa ter um map de socket para room. 	
 		//Player player(client_descriptor, message->player_name);	
 	} catch (std::exception const& e) {
@@ -80,8 +80,7 @@ void GameServer::add_client(int client_descriptor)
 {
 	std::lock_guard<std::mutex> lock(client_lock);
 
-	auto* new_client = new ServerConnector(client_descriptor);
-	active_clients[client_descriptor] = new_client;		
+	active_clients[client_descriptor] = std::make_shared<ServerConnector>(client_descriptor);		
 }
 
 void GameServer::delete_disconnected()
@@ -99,10 +98,6 @@ void GameServer::delete_disconnected()
 	}
 
 	for (auto descriptor : to_delete) {
-		auto client = active_clients[descriptor];
-
-		if(client!=nullptr)
-			delete client;
 		// deletar no ambiente do jogo.
 		printf("Deleted client %d in game server successfully!\n", descriptor);
 		active_clients.erase(descriptor);
