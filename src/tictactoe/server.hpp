@@ -16,6 +16,7 @@ class ServerConnector
 	public:
 	    ServerConnector(int socket_fd) noexcept(false);
         ~ServerConnector() noexcept(false);
+		void run() noexcept(false);
 		bool is_connected();
         void send(GameMessage *message) noexcept(false);
         GameMessage *receive() noexcept(false);
@@ -23,6 +24,7 @@ class ServerConnector
 	private:
 	    int socket_fd;
 		bool connected;
+		std::thread client_thread;
 };
 
 class GameServer

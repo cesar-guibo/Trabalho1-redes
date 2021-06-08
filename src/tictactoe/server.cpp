@@ -20,6 +20,7 @@
 ServerConnector::ServerConnector(int socket_fd) noexcept(false):
 	socket_fd(socket_fd), connected(true)
 {
+	client_thread = std::thread(&ServerConnector::run, this); 
 }
 
 
@@ -58,6 +59,21 @@ GameMessage* ServerConnector::receive() noexcept(false)
     return GameMessage::parse(std::string(buffer));
 }
 
+void ServerConnector::run() noexcept(false)
+{
+	GameMessage *message;
+	try{
+		message = this->receive();
+		printf("Message received: %s", message->player_name);
+		// não sei como a gnt guarda isso. acho q precisa ter um map de socket para room. 	
+		//Player player(client_descriptor, message->player_name);	
+	} catch (std::exception const& e) {
+        std::cout << 1 << std::endl;
+        std::cout << e.what() << std::endl;
+        std::cout << std::endl;
+    }
+}
+
 GameServer::GameServer(){}
 
 void GameServer::add_client(int client_descriptor)
@@ -65,18 +81,7 @@ void GameServer::add_client(int client_descriptor)
 	std::lock_guard<std::mutex> lock(client_lock);
 
 	auto* new_client = new ServerConnector(client_descriptor);
-	active_clients[client_descriptor] = new_client;	    
- 	GameMessage *message;
-	try{
-		message = active_clients[client_descriptor]->receive();
-		printf("Message received: %s", message->player_name);
-		Player player(client_descriptor, message->player_name);	
-    } catch (std::exception const& e) {
-        std::cout << 1 << std::endl;
-        std::cout << e.what() << std::endl;
-        std::cout << std::endl;
-    }
-		
+	active_clients[client_descriptor] = new_client;		
 }
 
 void GameServer::delete_disconnected()
