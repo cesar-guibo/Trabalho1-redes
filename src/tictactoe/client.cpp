@@ -39,6 +39,6 @@ GameMessage *ClientConnector::receive() noexcept(false)
     if (bytes_received < 0)
         throw SocketError();
     buffer[bytes_received] = '\0';
-    std::cout << buffer;
+    std::cout << buffer << std::endl;
     return GameMessage::parse(std::string(buffer));
 }

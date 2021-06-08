@@ -56,16 +56,20 @@ const std::string Room::EMPTY_STR_FLAG = "\\";
 std::pair<int, int> Room::get_players_id()
 {
 	std::pair<int, int> id;
-	id.first = (players.first == nullptr) ? EMPTY_INT_FLAG : players.first->get_id();
-	id.second = (players.second == nullptr) ? EMPTY_INT_FLAG : players.second->get_id();
+	id.first = (players.first == nullptr) 
+        ? EMPTY_INT_FLAG : players.first->get_id();
+	id.second = (players.second == nullptr)
+        ? EMPTY_INT_FLAG : players.second->get_id();
 	return id;
 }
 
 std::pair<std::string, std::string> Room::get_players_name()
 {
 	std::pair<std::string, std::string> names;
-	names.first = (players.first == nullptr) ? EMPTY_STR_FLAG : players.first->get_name();
-	names.second = (players.second == nullptr) ? EMPTY_STR_FLAG : players.second->get_name();
+	names.first = (players.first == nullptr)
+        ? EMPTY_STR_FLAG : players.first->get_name();
+	names.second = (players.second == nullptr)
+        ? EMPTY_STR_FLAG : players.second->get_name();
 	return names;
 }
 

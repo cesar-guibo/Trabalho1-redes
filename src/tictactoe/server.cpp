@@ -17,6 +17,8 @@
 
 #define MESSAGE_MAX_SIZE 500
 
+#define CONNECTIONS_QUEUE_SIZE 10
+
 ServerConnector::ServerConnector(int socket_fd, GameServer &game_server) noexcept(false):
 	socket_fd(socket_fd), connected(true), game_server(game_server)
 {
@@ -70,12 +72,14 @@ void ServerConnector::run() noexcept(false)
         std::cout << 1 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
-  }
+    }
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	try{
 		message = new GameMessage();
         message->type = MessageType::AVAILABLE_ROOMS;
 		temp_room = game_server.get_rooms();
+        std::cout << (temp_room.empty() ? "No rooms at all" : "Has rooms")
+            << std::endl;
 		if(temp_room.empty())
 		{
 				message->player_name = " "; //this is just to not get an error.
@@ -90,7 +94,7 @@ void ServerConnector::run() noexcept(false)
         std::cout << 2 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
-  }
+    }
 	try{
 		message = this->receive();
 		number_room = message->selected_room_id;
@@ -99,7 +103,8 @@ void ServerConnector::run() noexcept(false)
         std::cout << 3 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
-  }
+    }
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	try{
 		message = new GameMessage();
 		message->type = MessageType::ENTERED_ROOM;
@@ -128,6 +133,7 @@ void ServerConnector::run() noexcept(false)
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
 	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	try{
 		message = new GameMessage();
 		// which one will play first.
@@ -156,6 +162,7 @@ GameServer::GameServer(){}
 
 std::map<int, std::shared_ptr<Room>> GameServer::get_rooms()
 {
+	std::lock_guard<std::mutex> lock(client_lock);
 	return this->rooms;
 }
 
@@ -189,6 +196,7 @@ void GameServer::delete_disconnected()
 
 void GameServer::add_room(int number_room, std::shared_ptr<Room> room)
 {
+	std::lock_guard<std::mutex> lock(client_lock);
 	rooms[number_room] = room;
 }
 

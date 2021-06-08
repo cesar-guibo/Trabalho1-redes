@@ -56,7 +56,8 @@ int main(int argc, char *argv[])
         std::cout << std::endl;
     }
     if(message->rooms.empty()){
-        std::cout << "No rooms available. Input the number of the room you want:" << std::endl;
+        std::cout << "No rooms available."
+        << " Input the number of the room you want to create:" << std::endl;
     }else{
         for (auto& room : message->rooms) {
             std::pair<std::string, std::string> players_name = room->get_players_name();
