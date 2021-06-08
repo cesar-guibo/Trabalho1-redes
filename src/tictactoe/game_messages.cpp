@@ -50,8 +50,9 @@ std::string GameMessage::rooms_to_string()
     if (type == MessageType::AVAILABLE_ROOMS) {
         for (auto& room : rooms)
             str.append(room->serialize()).append(",");
-        str.pop_back();
     }
+    if (str.back() == ',')
+        str.pop_back();
     return str.append("]");
 }
 

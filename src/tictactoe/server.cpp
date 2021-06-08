@@ -74,13 +74,15 @@ void ServerConnector::run() noexcept(false)
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	try{
 		message = new GameMessage();
+        message->type = MessageType::AVAILABLE_ROOMS;
 		temp_room = game_server.get_rooms();
 		if(temp_room.empty())
 		{
 				message->player_name = " "; //this is just to not get an error.
 		}else{
-			for(auto &r: temp_room)
+			for(auto &r: temp_room) {
 				message->rooms.push_back(r.second);
+            }
 		}
 		this->send(message);
 		delete message;

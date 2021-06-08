@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <iostream>
 
 #define MESSAGE_MAX_SIZE 500
 
@@ -38,5 +39,6 @@ GameMessage *ClientConnector::receive() noexcept(false)
     if (bytes_received < 0)
         throw SocketError();
     buffer[bytes_received] = '\0';
+    std::cout << buffer;
     return GameMessage::parse(std::string(buffer));
 }
