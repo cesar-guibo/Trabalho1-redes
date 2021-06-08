@@ -16,8 +16,6 @@ struct sockaddr_in incoming_addr;
 socklen_t addr_size;
 GameServer game;	
 
-#define CONNECTIONS_QUEUE_SIZE 10
-
 void listen_connections();
 void remove_disconnected_clients();
 
@@ -49,7 +47,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	
-	if(listen(incoming_descriptor, CONNECTIONS_QUEUE_SIZE) != 0){
+	if(listen(incoming_descriptor, 4) != 0){
 		perror("Failed in listen\n");
 		exit(EXIT_FAILURE);
 	}

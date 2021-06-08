@@ -95,44 +95,52 @@ void ServerConnector::run() noexcept(false)
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
     }
-	try{
-		message = this->receive();
-		number_room = message->selected_room_id;
-		delete message;
-	} catch (std::exception const& e){
+	bool try_again = true;
+	while(try_again){
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		try{
+			message = this->receive();
+			number_room = message->selected_room_id;
+			delete message;
+		} catch (std::exception const& e){
         std::cout << 3 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
     }
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	try{
-		message = new GameMessage();
-		message->type = MessageType::ENTERED_ROOM;
-		temp_room = game_server.get_rooms();
-		message->allowed_entry_in_room = true;			
-		if(temp_room.count(number_room) == 0) // if we have to create the room
-		{
-			message->allowed_entry_in_room = true;
-			auto new_room = std::make_shared<Room>(number_room);
-			new_room->add_player(player);
-			game_server.add_room(number_room, new_room);
-		}else
-		{
-			if(temp_room[number_room]->is_full()){
-				message->allowed_entry_in_room = false;
-			}
-			else{
-				temp_room[number_room]->add_player(player);
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		try{
+			message = new GameMessage();
+			message->type = MessageType::ENTERED_ROOM;
+			temp_room = game_server.get_rooms();
+			message->allowed_entry_in_room = true;			
+			if(temp_room.count(number_room) == 0) // if we have to create the room
+			{
 				message->allowed_entry_in_room = true;
+				auto new_room = std::make_shared<Room>(number_room);
+				new_room->add_player(player);
+				game_server.add_room(number_room, new_room);
+				try_again = false;
+			}else
+			{
+				if(temp_room[number_room]->is_full()){
+					message->allowed_entry_in_room = false;
+					try_again = true;
+				}
+				else{
+					temp_room[number_room]->add_player(player);
+					message->allowed_entry_in_room = true;
+					try_again = false;
+				}
 			}
+			this->send(message);
+			delete message;
+		}catch(std::exception const& e){
+			std::cout << 4 << std::endl;
+					std::cout << e.what() << std::endl;
+					std::cout << std::endl;
 		}
-		this->send(message);
-		delete message;
-	}catch(std::exception const& e){
-		std::cout << 4 << std::endl;
-        std::cout << e.what() << std::endl;
-        std::cout << std::endl;
 	}
+	
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	try{
 		message = new GameMessage();
