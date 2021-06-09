@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+#include <chrono>
 
 #define MESSAGE_MAX_SIZE 500
 
@@ -27,7 +28,8 @@ ServerConnector::ServerConnector(int socket_fd, GameServer &game_server) noexcep
 
 ServerConnector::~ServerConnector() noexcept(false)
 {
-    if (shutdown(socket_fd, SHUT_RDWR) < 0)
+		client_thread.join();
+		if (shutdown(socket_fd, SHUT_RDWR) < 0)
         throw SocketError();
 }
 
@@ -59,6 +61,8 @@ GameMessage* ServerConnector::receive() noexcept(false)
 
 void ServerConnector::run() noexcept(false)
 {
+	using namespace std::chrono_literals;
+
 	GameMessage *message;
 	std::map<int, std::shared_ptr<Room>> temp_room;
 	Player *player;
@@ -140,8 +144,15 @@ void ServerConnector::run() noexcept(false)
 					std::cout << std::endl;
 		}
 	}
-	
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	
+	while(1)
+	{
+		temp_room = game_server.get_rooms();
+		if(temp_room[number_room]->is_full()) break;
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+	bool first;
 	try{
 		message = new GameMessage();
 		// which one will play first.
@@ -154,6 +165,7 @@ void ServerConnector::run() noexcept(false)
 			message->plays_first = true;
 			message->cross_or_circle = CrossOrCircle::CROSS;
 		}
+		first = message->plays_first;
 		this->send(message);
 		delete message;
 	} catch (std::exception const& e){
@@ -161,9 +173,37 @@ void ServerConnector::run() noexcept(false)
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
   }
-  while(1){
-	
-  }
+	if(first)
+	{
+		message = this->receive();
+		message->allowed_entry_in_room = first;
+		game_server.set_plays(message, number_room);
+
+	}
+	while(1)
+	{
+		while(1){
+			message = game_server.get_plays(number_room);
+			
+			if (message->type == MessageType::GAME_ENDED) {
+				this->send(message);
+				return;
+			}
+
+			if(message->allowed_entry_in_room != first){
+				break;
+			}
+			
+			std::this_thread::sleep_for(50ms);
+		}
+
+		message = this->receive();
+		game_server.set_plays(message, number_room);
+		
+		if (message->type == MessageType::GAME_ENDED) {
+			break;
+		}
+	}
 }
 
 GameServer::GameServer(){}
@@ -206,5 +246,15 @@ void GameServer::add_room(int number_room, std::shared_ptr<Room> room)
 {
 	std::lock_guard<std::mutex> lock(client_lock);
 	rooms[number_room] = room;
+}
+
+GameMessage* GameServer::get_plays(int number_room)
+{
+	return rooms[number_room]->get_plays();
+}
+
+void GameServer::set_plays(GameMessage* plays, int number_room)
+{
+	rooms[number_room]->set_plays(plays);
 }
 

@@ -6,8 +6,11 @@
 #include <utility>
 #include <unordered_map>
 #include <memory>
+#include <optional>
+#include <mutex>
 
 #include "serializable.hpp"
+#include "game_messages.hpp"
 //#include "server.hpp"
 
 class Player : Serializable
@@ -40,10 +43,14 @@ class Room : Serializable
         std::pair<std::string, std::string> get_players_name();
         std::string serialize();
         static std::shared_ptr<Room> parse(std::string serialized);
-	
+        GameMessage* get_plays();
+		void set_plays(GameMessage* plays);
+
 	private:
 		std::pair<Player*, Player*> players;
 		int id;
+        GameMessage* plays;
+        std::mutex player_lock;
 };
 
 enum class CrossOrCircle {

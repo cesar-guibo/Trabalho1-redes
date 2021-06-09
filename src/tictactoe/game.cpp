@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <memory>
+#include <optional>
 
 Player::Player(){}
 Player::Player(int id, std::string name):
@@ -190,3 +191,14 @@ std::string Board::to_string()
     return str;
 }
 
+GameMessage* Room::get_plays()
+{
+    std::lock_guard<std::mutex> lock(player_lock);
+	return plays;
+}
+
+void Room::set_plays(GameMessage* plays)
+{
+    std::lock_guard<std::mutex> lock(player_lock);
+	this->plays = plays;
+}
