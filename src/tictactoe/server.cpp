@@ -158,13 +158,15 @@ void ServerConnector::run() noexcept(false)
 		// which one will play first.
 		temp_room = game_server.get_rooms();
 		message->type = MessageType::GAME_STARTED;
-		if(temp_room[number_room]->is_full()){
+
+		if(temp_room[number_room]->get_players_id().first == socket_fd){
 			message->plays_first = false;
 			message->cross_or_circle = CrossOrCircle::CIRCLE;
 		}else{
 			message->plays_first = true;
 			message->cross_or_circle = CrossOrCircle::CROSS;
 		}
+
 		first = message->plays_first;
 		this->send(message);
 		delete message;
@@ -189,7 +191,7 @@ void ServerConnector::run() noexcept(false)
 				std::this_thread::sleep_for(50ms);
 				continue;
 			}
-			
+
 			if (message->type == MessageType::GAME_ENDED) {
 				this->send(message);
 				return;
@@ -202,6 +204,7 @@ void ServerConnector::run() noexcept(false)
 			std::this_thread::sleep_for(50ms);
 		}
 
+		this->send(message);
 		message = this->receive();
 		game_server.set_plays(message, number_room);
 		

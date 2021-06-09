@@ -331,7 +331,7 @@ void PlayGame::wait_for_opponents_play()
     try {
         message = connector->receive();
         int max_tries = 10;
-        while(message->type != MessageType::GAME_STARTED and max_tries > 0) {
+        while(message->type != MessageType::EXECUTED_PLAY and max_tries > 0) {
             delete message;
             message = connector->receive();
             if (message->type == MessageType::CONNECTION_CLOSED) {

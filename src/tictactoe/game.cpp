@@ -126,6 +126,7 @@ Board::~Board() {}
 void Board::mark_chosen(CrossOrCircle c, std::pair<int, int> position)
 noexcept(false)
 {
+    // std::cerr << position.second << " " << position.first << "\n"; 
     if (board[position.second][position.first] != ' ')
         throw std::invalid_argument("Position is already marked");
     if (c == CrossOrCircle::CROSS)

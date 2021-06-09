@@ -36,8 +36,8 @@ GameMessage *GameMessage::parse(std::string message_str)
     message->allowed_entry_in_room = string_to_bool(fields[4]); 
     message->plays_first = string_to_bool(fields[5]); 
     message->cross_or_circle = string_to_cross_or_circle(fields[6]);
-    message->string_to_selected_coordinates(fields[7]);
-    message->string_to_result(fields[8]);
+    message->selected_coordinate = string_to_selected_coordinates(fields[7]);
+    message->result = string_to_result(fields[8]);
     return message;
 }
 
