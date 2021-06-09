@@ -39,6 +39,9 @@ int main(int argc, char *argv[])
         state = state->next();
         delete aux;
     }
+    std::cout << "Exiting the game" << std::endl;
+
+    delete client;
 
 	return 0;
 }

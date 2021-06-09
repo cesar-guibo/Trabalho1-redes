@@ -388,9 +388,7 @@ GameEnded::~GameEnded() {}
 
 ClientGameState *GameEnded::next()
 {
-    if (quit)
-        return new Quit();
-    return new DisplayRooms(connector);
+    return new Quit();
 }
 
 void GameEnded::start()
@@ -399,16 +397,15 @@ void GameEnded::start()
     switch (result) {
         case GameResult::WON: 
             std::cout << "YOU WON!";
+            break;
         case GameResult::LOST:
             std::cout << "you lost.";
+            break;
         case GameResult::TIED:
             std::cout << "It came to a draw.";
+            break;
     }
     std::cout << std::endl << std::endl;
-    std::cout << "Would you like to play another match? (Y/n)" << std::endl;
-    char in;
-    std::cin >> in;
-    quit = in == 'Y' or in == 'y';
 }
 
 bool GameEnded::is_last_state()
