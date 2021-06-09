@@ -360,7 +360,7 @@ void PlayGame::wait_for_opponents_play()
 
 void PlayGame::start()
 {
-    int max_tries = 10;
+    // int max_tries = 10;
     if (plays_first)
         execute_play();
     while(!game_ended and !connection_interrupted) {

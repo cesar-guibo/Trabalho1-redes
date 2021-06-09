@@ -3,6 +3,8 @@
 
 #include "game_messages.hpp"
 #include "socket_address.hpp"
+#include "game.hpp"
+
 #include <string>
 
 class ClientConnector

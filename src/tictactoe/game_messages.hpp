@@ -26,6 +26,17 @@ enum GameResult {
     WON, LOST, TIED
 };
 
+enum class CrossOrCircle {
+    CROSS, CIRCLE
+};
+
+enum class BoardState {
+    CROSS_WON,
+    CIRCLE_WON,
+    NOT_FINISHED,
+    TIED
+};
+
 class GameMessage : Serializable {
     public:
         MessageType type;

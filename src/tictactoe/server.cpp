@@ -185,6 +185,11 @@ void ServerConnector::run() noexcept(false)
 		while(1){
 			message = game_server.get_plays(number_room);
 			
+			if (!message) {
+				std::this_thread::sleep_for(50ms);
+				continue;
+			}
+			
 			if (message->type == MessageType::GAME_ENDED) {
 				this->send(message);
 				return;
