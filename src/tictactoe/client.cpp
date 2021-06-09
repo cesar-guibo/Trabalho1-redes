@@ -332,8 +332,6 @@ void PlayGame::wait_for_opponents_play()
         message = connector->receive();
         int max_tries = 10;
         while(message->type != MessageType::EXECUTED_PLAY and max_tries > 0) {
-            delete message;
-            message = connector->receive();
             if (message->type == MessageType::CONNECTION_CLOSED) {
                 connection_interrupted = true;
                 break;
@@ -343,6 +341,8 @@ void PlayGame::wait_for_opponents_play()
                 result = message->result;
                 break;
             }
+            delete message;
+            message = connector->receive();
         }
     } catch (const std::exception &e) {
         connection_interrupted = true;
@@ -369,6 +369,7 @@ void PlayGame::start()
             break;
         execute_play();
     }
+    std::cout << "Game ended" << std::endl;
 }
 
 bool PlayGame::is_last_state()

@@ -85,7 +85,7 @@ std::string GameMessage::cross_or_cirlce_to_string()
 std::string GameMessage::selected_coordinates_to_string()
 {
     std::string str("{");
-    if (type == MessageType::EXECUTED_PLAY) {
+    if (type == MessageType::EXECUTED_PLAY or type == MessageType::GAME_ENDED) {
         str.append(std::to_string(selected_coordinate.first)).append(",");
         str.append(std::to_string(selected_coordinate.second));
     }
