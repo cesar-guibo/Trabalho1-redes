@@ -206,6 +206,7 @@ void ServerConnector::run() noexcept(false)
 
 		this->send(message);
 		message = this->receive();
+        message->allowed_entry_in_room = first;
 		game_server.set_plays(message, number_room);
 		
 		if (message->type == MessageType::GAME_ENDED) {
