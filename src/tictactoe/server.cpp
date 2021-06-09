@@ -82,8 +82,6 @@ void ServerConnector::run() noexcept(false)
 		message = new GameMessage();
         message->type = MessageType::AVAILABLE_ROOMS;
 		temp_room = game_server.get_rooms();
-        std::cout << (temp_room.empty() ? "No rooms at all" : "Has rooms")
-            << std::endl;
 		if(temp_room.empty())
 		{
 				message->player_name = " "; //this is just to not get an error.
@@ -95,9 +93,7 @@ void ServerConnector::run() noexcept(false)
 		this->send(message);
 		delete message;
 	} catch (std::exception const& e){
-        std::cout << 2 << std::endl;
         std::cout << e.what() << std::endl;
-        std::cout << std::endl;
     }
 	bool try_again = true;
 	while(try_again){
@@ -107,9 +103,7 @@ void ServerConnector::run() noexcept(false)
 			number_room = message->selected_room_id;
 			delete message;
 		} catch (std::exception const& e){
-        std::cout << 3 << std::endl;
         std::cout << e.what() << std::endl;
-        std::cout << std::endl;
     }
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		try{
@@ -139,9 +133,7 @@ void ServerConnector::run() noexcept(false)
 			this->send(message);
 			delete message;
 		}catch(std::exception const& e){
-			std::cout << 4 << std::endl;
-					std::cout << e.what() << std::endl;
-					std::cout << std::endl;
+			std::cout << e.what() << std::endl;
 		}
 	}
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -171,10 +163,8 @@ void ServerConnector::run() noexcept(false)
 		this->send(message);
 		delete message;
 	} catch (std::exception const& e){
-        std::cout << 5 << std::endl;
         std::cout << e.what() << std::endl;
-        std::cout << std::endl;
-  }
+    }
 	if(first)
 	{
 		message = this->receive();
