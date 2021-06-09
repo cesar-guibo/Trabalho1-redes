@@ -305,7 +305,7 @@ void PlayGame::execute_play()
         result = GameResult::WON;
         game_ended = true;
         message->type = MessageType::GAME_ENDED;
-        message->result = result;
+        message->result = GameResult::LOST;
     } else if (board->get_state() == BoardState::TIED) {
         result = GameResult::TIED;
         game_ended = true;
