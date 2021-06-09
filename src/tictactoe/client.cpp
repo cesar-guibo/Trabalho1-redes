@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <sstream>
+#include <climits>
 
 #define MESSAGE_MAX_SIZE 500
 
@@ -40,7 +41,6 @@ GameMessage *ClientConnector::receive() noexcept(false)
     if (bytes_received < 0)
         throw SocketError();
     buffer[bytes_received] = '\0';
-    std::cout << buffer << std::endl;
     return GameMessage::parse(std::string(buffer));
 }
 
@@ -104,18 +104,19 @@ std::string DisplayRooms::rooms_to_string()
 {
     std::stringstream ss;
     for (std::shared_ptr<Room> room : rooms) {
-        ss << room->get_id() << " | ";
+        ss << "[Sala " <<  room->get_id() << "] ";
         std::pair<std::string, std::string> names = room->get_players_name();
-        ss << "Player 1: ";
+        ss << "<";
         if (names.first != Room::EMPTY_STR_FLAG)
              ss << names.first;
         else 
             ss << "EMPTY";
-        ss << ", Player 2: ";
+        ss << ", ";
         if (names.second != Room::EMPTY_STR_FLAG)
             ss << names.second;
         else 
             ss << "EMPTY";
+        ss << ">" << std::endl;
     }
     return ss.str();
 }
@@ -295,10 +296,20 @@ bool PlayGame::client_won()
 void PlayGame::execute_play()
 {
     std::cout << board->to_string() << std::endl;
-    std::cout << "Select an available position: ";
+    std::cout << "Select an available position (i.e. x y): ";
     std::pair<int, int> coordinate;
-    std::cin >> coordinate.first >> coordinate.second;
-    board->mark_chosen(cross_or_circle, coordinate);
+    std::cin >> coordinate.first;
+    std::cin >> coordinate.second;
+    while (true) {
+        try {
+            board->mark_chosen(cross_or_circle, coordinate);
+            break;
+        } catch (const std::exception &e) {
+            std::cout << "Invalid position, select another one (i.e. x y): ";
+            std::cin >> coordinate.first;
+            std::cin >> coordinate.second;
+        }
+    }
     std::cout << board->to_string() << std::endl;
     GameMessage *message = new GameMessage();
     if (client_won()) {
