@@ -23,6 +23,7 @@ class GameServer
 		void delete_disconnected();
 		std::map<int, std::shared_ptr<Room>> get_rooms();
 		void add_room(int number_room, std::shared_ptr<Room> room);
+		void delete_room(int number_room);
 		GameMessage* get_plays(int number_room);
 		void set_plays(GameMessage* plays, int number_room);
 

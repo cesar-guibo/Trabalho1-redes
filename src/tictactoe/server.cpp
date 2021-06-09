@@ -203,6 +203,14 @@ void ServerConnector::run() noexcept(false)
 			break;
 		}
 	}
+	std::vector<int> to_delete;
+	for(auto &r : temp_room){
+		to_delete.push_back(r.first);
+	}
+	for (auto number : to_delete){
+		temp_room.erase(number);
+	}
+	game_server.delete_room(number_room);
 }
 
 GameServer::GameServer(){}
@@ -245,6 +253,13 @@ void GameServer::add_room(int number_room, std::shared_ptr<Room> room)
 {
 	std::lock_guard<std::mutex> lock(client_lock);
 	rooms[number_room] = room;
+}
+
+void GameServer::delete_room(int number_room)
+{
+	std::lock_guard<std::mutex> lock(client_lock);
+	if(!rooms[number_room]->is_full())
+		rooms.erase(number_room);
 }
 
 GameMessage* GameServer::get_plays(int number_room)
