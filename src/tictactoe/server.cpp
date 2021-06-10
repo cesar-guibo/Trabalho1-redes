@@ -20,16 +20,17 @@
 
 #define CONNECTIONS_QUEUE_SIZE 10
 
-ServerConnector::ServerConnector(int socket_fd, GameServer &game_server) noexcept(false):
-	socket_fd(socket_fd), connected(true), game_server(game_server)
+ServerConnector::ServerConnector(int socket_fd, GameServer &game_server)
+    noexcept(false)
+    : socket_fd(socket_fd), connected(true), game_server(game_server)
 {
 	client_thread = std::thread(&ServerConnector::run, this); 
 }
 
 ServerConnector::~ServerConnector() noexcept(false)
 {
-		client_thread.join();
-		if (shutdown(socket_fd, SHUT_RDWR) < 0)
+	client_thread.join();
+	if (shutdown(socket_fd, SHUT_RDWR) < 0)
         throw SocketError();
 }
 
@@ -50,8 +51,7 @@ GameMessage* ServerConnector::receive() noexcept(false)
 {
     char buffer[MESSAGE_MAX_SIZE];
     int bytes_received = ::recv(socket_fd, buffer, MESSAGE_MAX_SIZE, 0);
-    if (bytes_received < 0)
-	{
+    if (bytes_received < 0) {
 		connected = false;
         throw SocketError();	
 	}
@@ -67,25 +67,24 @@ void ServerConnector::run() noexcept(false)
 	std::map<int, std::shared_ptr<Room>> temp_room;
 	Player *player;
 	int number_room;
-	try{
+	try {
 		message = this->receive();
 		std::cout << "Player name received: " << message->player_name << std::endl;
 		player = new Player(socket_fd, message->player_name);
 		delete message;
-	} catch (std::exception const& e){
+	} catch (std::exception const& e) {
         std::cout << 1 << std::endl;
         std::cout << e.what() << std::endl;
         std::cout << std::endl;
     }
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	try{
+	try {
 		message = new GameMessage();
         message->type = MessageType::AVAILABLE_ROOMS;
 		temp_room = game_server.get_rooms();
-		if(temp_room.empty())
-		{
+		if(temp_room.empty()) {
 				message->player_name = " "; //this is just to not get an error.
-		}else{
+		} else {
 			for(auto &r: temp_room) {
 				message->rooms.push_back(r.second);
             }
@@ -103,58 +102,55 @@ void ServerConnector::run() noexcept(false)
 			number_room = message->selected_room_id;
 			delete message;
 		} catch (std::exception const& e){
-        std::cout << e.what() << std::endl;
+            std::cout << e.what() << std::endl;
+        }
+	    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	    try{
+		    message = new GameMessage();
+		    message->type = MessageType::ENTERED_ROOM;
+		    temp_room = game_server.get_rooms();
+		    message->allowed_entry_in_room = true;			
+		    if(temp_room.count(number_room) == 0) {// if we have to create the room
+			    message->allowed_entry_in_room = true;
+			    auto new_room = std::make_shared<Room>(number_room);
+			    new_room->add_player(player);
+			    game_server.add_room(number_room, new_room);
+			    try_again = false;
+		    } else {
+			    if(temp_room[number_room]->is_full()){
+				    message->allowed_entry_in_room = false;
+				    try_again = true;
+			    }
+			    else {
+				    temp_room[number_room]->add_player(player);
+				    message->allowed_entry_in_room = true;
+				    try_again = false;
+			    }
+		    }
+		    this->send(message);
+		    delete message;
+	    } catch(std::exception const& e) {
+		    std::cout << e.what() << std::endl;
+	    }
     }
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		try{
-			message = new GameMessage();
-			message->type = MessageType::ENTERED_ROOM;
-			temp_room = game_server.get_rooms();
-			message->allowed_entry_in_room = true;			
-			if(temp_room.count(number_room) == 0) // if we have to create the room
-			{
-				message->allowed_entry_in_room = true;
-				auto new_room = std::make_shared<Room>(number_room);
-				new_room->add_player(player);
-				game_server.add_room(number_room, new_room);
-				try_again = false;
-			}else
-			{
-				if(temp_room[number_room]->is_full()){
-					message->allowed_entry_in_room = false;
-					try_again = true;
-				}
-				else{
-					temp_room[number_room]->add_player(player);
-					message->allowed_entry_in_room = true;
-					try_again = false;
-				}
-			}
-			this->send(message);
-			delete message;
-		}catch(std::exception const& e){
-			std::cout << e.what() << std::endl;
-		}
-	}
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	
-	while(1)
-	{
+	while(1) {
 		temp_room = game_server.get_rooms();
 		if(temp_room[number_room]->is_full()) break;
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 	bool first;
-	try{
+	try {
 		message = new GameMessage();
 		// which one will play first.
 		temp_room = game_server.get_rooms();
 		message->type = MessageType::GAME_STARTED;
 
-		if(temp_room[number_room]->get_players_id().first == socket_fd){
+		if(temp_room[number_room]->get_players_id().first == socket_fd) {
 			message->plays_first = false;
 			message->cross_or_circle = CrossOrCircle::CIRCLE;
-		}else{
+		} else {
 			message->plays_first = true;
 			message->cross_or_circle = CrossOrCircle::CROSS;
 		}
@@ -162,18 +158,15 @@ void ServerConnector::run() noexcept(false)
 		first = message->plays_first;
 		this->send(message);
 		delete message;
-	} catch (std::exception const& e){
+	} catch (std::exception const& e) {
         std::cout << e.what() << std::endl;
     }
-	if(first)
-	{
+	if(first) {
 		message = this->receive();
 		message->allowed_entry_in_room = first;
 		game_server.set_plays(message, number_room);
-
 	}
-	while(1)
-	{
+	while(1) {
 		while(1){
 			message = game_server.get_plays(number_room);
 			
@@ -234,8 +227,7 @@ void GameServer::delete_disconnected()
 
 	std::vector<int> to_delete;
 
-	for(auto const &client : active_clients)
-	{
+	for(auto const &client : active_clients) {
 		if(client.second->is_connected() == false)
 		{	
 			to_delete.push_back(client.first);
@@ -271,4 +263,3 @@ void GameServer::set_plays(GameMessage* plays, int number_room)
 {
 	rooms[number_room]->set_plays(plays);
 }
-
